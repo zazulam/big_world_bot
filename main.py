@@ -108,6 +108,8 @@ async def on_message(message):
                         embed.add_field(name="!bigworld [name]", value="Default name is Noonz, shows all the relationships that stem from the name passed")
                         embed.add_field(name="!ancestors [name]", value='Defaults to the person who made the command, shows the lineage tracing from this member all the way up to the First Borne')
                         embed.add_field(name="!family [name]",value="Defaults to the person who made the command, shows the parent and children of the member passed")
+                        embed.add_field(name="!poll [question]",value="Added the appropriate reactions for a poll question a user has.")
+                        embed.add_field(name="!speak [audio]",values="Bot will join the voice channel that the user is currently in and speak the given audio file, current supported values for audio are: cut, fucked")
                         await message.channel.send(embed=embed)  
                     elif "roles" in command:
                         roles_str = "You can assign the following roles to yourself:\n"
