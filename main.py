@@ -271,18 +271,19 @@ async def on_message(message):
                         os.remove("family_{}.png".format(root_member.name))
 
                     elif "speak" in command:
-                        voice_channel = member.guild.voice_channels[2]
-                        if client.user not in voice_channel.members:
-                            vc = await voice_channel.connect()
-                        else:
-                            vc = client.voice_clients[0]
-                        if 'fucked' in command:
-                            vc.play(discord.FFmpegPCMAudio('fucked_up.mp3'))
-                        elif 'cut' in command:
-                            vc.play(discord.FFmpegPCMAudio('cut.mp3'))
-                        while vc.is_playing():
-                            continue
-                        await vc.disconnect()
+                        voice_channel = member.voice.channel
+                        if voice_channel:
+                            if client.user not in voice_channel.members:
+                                vc = await voice_channel.connect()
+                            else:
+                                vc = client.voice_clients[0]
+                            if 'fucked' in command:
+                                vc.play(discord.FFmpegPCMAudio('fucked_up.mp3'))
+                            elif 'cut' in command:
+                                vc.play(discord.FFmpegPCMAudio('cut.mp3'))
+                            while vc.is_playing():
+                                continue
+                            await vc.disconnect()
                     
                     elif "poll" in command:
                         await message.add_reaction('👍')
