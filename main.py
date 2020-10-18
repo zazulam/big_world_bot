@@ -16,8 +16,8 @@ from discord.ext import commands
 from discord.utils import get
 from pptree import *
 
-
-config = json.load('config.json')
+with open('config.json','r') as config_file:
+    config = json.load(config_file)
 
 client = discord.Client()
 current_invites = {}
@@ -109,7 +109,7 @@ async def on_message(message):
                         embed.add_field(name="!ancestors [name]", value='Defaults to the person who made the command, shows the lineage tracing from this member all the way up to the First Borne')
                         embed.add_field(name="!family [name]",value="Defaults to the person who made the command, shows the parent and children of the member passed")
                         embed.add_field(name="!poll [question]",value="Added the appropriate reactions for a poll question a user has.")
-                        embed.add_field(name="!speak [audio]",values="Bot will join the voice channel that the user is currently in and speak the given audio file, current supported values for audio are: cut, fucked")
+                        embed.add_field(name="!speak [audio]",value="Bot will join the voice channel that the user is currently in and speak the given audio file, current supported values for audio are: cut, fucked")
                         await message.channel.send(embed=embed)  
                     elif "roles" in command:
                         roles_str = "You can assign the following roles to yourself:\n"
@@ -271,8 +271,8 @@ async def on_message(message):
                         os.remove("family_{}.png".format(root_member.name))
 
                     elif "speak" in command:
-                        voice_channel = member.voice.channel
-                        if voice_channel:
+                        if member.voice:
+                            voice_channel = member.voice.channel
                             if client.user not in voice_channel.members:
                                 vc = await voice_channel.connect()
                             else:
@@ -284,6 +284,8 @@ async def on_message(message):
                             while vc.is_playing():
                                 continue
                             await vc.disconnect()
+                        else:
+                            await message.channel.send("How about you join the voice channel and say it yourself 🐔")
                     
                     elif "poll" in command:
                         await message.add_reaction('👍')
