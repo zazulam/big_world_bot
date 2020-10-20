@@ -15,15 +15,16 @@ import text_to_image
 from discord.ext import commands
 from discord.utils import get
 from pptree import *
+from expiringdict import ExpiringDict
 
 with open('config.json','r') as config_file:
     config = json.load(config_file)
 
 client = discord.Client()
 current_invites = {}
-
-preset_colors = deque(['purple','blue','green','yellow','orange','pink','skyblue','black','brown'])
+role_colors = ['black','cyan','dark green','orange','lime green','white','red','blue','pink','purple','brown','yellow']
 colors = []
+headcount_requests = ExpiringDict(max_len=100, max_age_seconds=1200)
 invites = {}
 last = ""
 
@@ -75,7 +76,7 @@ async def fetch():
                             embed.add_field(name=f"Invited By:",value="{} \n Congratulations on the +1!".format(inv_mention))
                             embed.add_field(name=f"Role:{inviters_role}",value=f"{inv_mention} there is now a role named after you, anyone you invite will be assigned this role.")
                             await channel.send(embed=embed)
-        tmp.append(tuple((i.code, i.uses)))
+            tmp.append(tuple((i.code, i.uses)))
         invites = tmp
         await asyncio.sleep(4)
 
@@ -96,8 +97,9 @@ async def on_message(message):
         if len(message.content) > 0:
             if message.content[0] == "!":
                 roles = member.guild.roles
-                role_names = [role.name for role in roles[1:13]]
-                command = message.content[1:].lower()
+                global role_colors
+                global headcount_requests
+                command = message.content[1:]
                 try:
                     global colors
                     if command == "help":
@@ -110,13 +112,14 @@ async def on_message(message):
                         embed.add_field(name="!family [name]",value="Defaults to the person who made the command, shows the parent and children of the member passed")
                         embed.add_field(name="!poll [question]",value="Added the appropriate reactions for a poll question a user has.")
                         embed.add_field(name="!speak [audio]",value="Bot will join the voice channel that the user is currently in and speak the given audio file, current supported values for audio are: cut, fucked")
+                        embed.add_field(name="!poll headcount [game] [count]",value="A poll that will ping the author and all those who react with a :thumbsup: when the count is reach (excluding the bot and author)")
                         await message.channel.send(embed=embed)  
                     elif "roles" in command:
                         roles_str = "You can assign the following roles to yourself:\n"
-                        for r in role_names:
+                        for r in role_colors:
                             roles_str = roles_str + r + "\n"
                         await message.channel.send(roles_str)
-                    elif command in role_names:
+                    elif command in role_colors:
                         print(member)
                         role = get(member.guild.roles,name=message.content[1:])
                         print("Role:")
@@ -145,7 +148,7 @@ async def on_message(message):
                         G = nx.DiGraph()
                         family = deque()
 
-                        if len(command)>8:
+                        if len(command.split())>1:
                             root_member = get(member.guild.members,name=command.replace("bigworld","").strip())
                             print(root_member)
                         else:
@@ -191,7 +194,9 @@ async def on_message(message):
                         os.remove(f"bigworld_{member.name}.png")         
                     
                     elif "ancestors" in command:
-                        if len(command)>9:
+                        if len(command.split())>1:
+                            name= command.replace("ancestors","").strip()
+                            print(name)
                             root_member = get(member.guild.members,name=command.replace("ancestors","").strip())
                             print(root_member)
                         else:
@@ -237,7 +242,7 @@ async def on_message(message):
                         os.remove("ancestors_{}.png".format(root_member.name))             
                     
                     elif "family" in command:
-                        if len(command)>6:
+                        if len(command.split())>1:
                             root_member = get(member.guild.members,name=command.replace("family","").strip())
                             print(root_member)
                         else:
@@ -288,20 +293,58 @@ async def on_message(message):
                             await message.channel.send("How about you join the voice channel and say it yourself 🐔")
                     
                     elif "poll" in command:
-                        await message.add_reaction('👍')
-                        await message.add_reaction('👎')
-                        await message.add_reaction('🤷')
+                        if "headcount" in command.lower():
+                            new_content = "https://tenor.com/view/roll-call-head-count-attendance-name-calling-call-out-gif-15740804"
+                            if len(command.split())>2:
+                                poll_request = command.split()
+                                requested_count = int(poll_request.pop())
+                                game = " ".join(poll_request[2:]).upper()
+                                new_content = "**{}**\n".format(game)+new_content
+                            bot_msg = await message.channel.send(content=new_content)
+                            await bot_msg.add_reaction('👍')
+                            await bot_msg.add_reaction('👎')
+                            await bot_msg.add_reaction('🤷')
+                            if bot_msg not in headcount_requests:
+                                headcount_requests[bot_msg.id] = (member.mention,requested_count,game)
+                        else:
+                            await message.add_reaction('👍')
+                            await message.add_reaction('👎')
+                            await message.add_reaction('🤷')
                         #TODO: Add some flares/updating for when a certain poll is created after hitting a specific number 
                         
 
 
                 except Exception as ex:
                     print(ex)
-                    error_msg   = "zazu kinda sucks at coding so he doesn't know how to make me smart enough to handle whatever just happened. 🙄"
+                    error_msg = "zazu kinda sucks at coding so he doesn't know how to make me smart enough to handle whatever just happened. 🙄"
                     await message.channel.send(error_msg)
+                    raise ex
                 finally:
                     colors = []
                     plt.clf()
+
+@client.event
+async def on_reaction_add(reaction,member):
+    global headcount_requests
+    if member.bot:
+        return
+    if reaction.message.id in headcount_requests:
+        if reaction.count-2 >= headcount_requests[reaction.message.id][1]:
+            game = headcount_requests[reaction.message.id][2]
+            mention = headcount_requests[reaction.message.id][0]
+            announcement = "{}, your poll for **{}** has received the requested amount of 👍. Your fellow comrades:\n".format(mention,game)
+            comrades = ""
+            async for mem in reaction.users():
+                if not mem.bot:
+                    comrades = comrades + mem.mention+"\n"
+            announcement = announcement+comrades
+            embed = discord.Embed(title="{} Request".format(game),description="{} your poll has received the desired amount of 👍s.".format(mention))
+            embed.add_field(name="Comrades:",value=comrades)
+            await reaction.message.channel.send(embed=embed)
+            del headcount_requests[reaction.message.id]
+
+
+
 
 @client.event
 async def on_member_join(member):

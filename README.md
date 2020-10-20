@@ -3,8 +3,9 @@ This bot is a little side project to add some flavor in our discord server.
 
 ## Some useful features:
 * Invite Tracking
-* Polling
+* Question Polling
 * Role Assignment
+* Poll Pinging for Roll Call
 
 ## Some not-so-useful, but playful features:
 * Sus-meter
