@@ -363,7 +363,6 @@ async def on_reaction_add(reaction,member):
 async def on_member_join(member):
     global last
     last = str(member.id)
-    await fetch()
 
 client.loop.create_task(fetch())
 client.run(config["bot_token"])
