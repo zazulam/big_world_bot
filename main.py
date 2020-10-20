@@ -6,7 +6,7 @@ import sys
 import time
 from collections import deque
 from io import StringIO
-
+import requests
 import discord
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -24,7 +24,7 @@ client = discord.Client()
 current_invites = {}
 role_colors = ['black','cyan','dark green','orange','lime green','white','red','blue','pink','purple','brown','yellow']
 colors = []
-headcount_requests = ExpiringDict(max_len=100, max_age_seconds=1200)
+headcount_requests = ExpiringDict(max_len=100, max_age_seconds=4800)
 invites = {}
 last = ""
 
@@ -294,18 +294,19 @@ async def on_message(message):
                     
                     elif "poll" in command:
                         if "headcount" in command.lower():
-                            new_content = "https://tenor.com/view/roll-call-head-count-attendance-name-calling-call-out-gif-15740804"
+                            
                             if len(command.split())>2:
                                 poll_request = command.split()
                                 requested_count = int(poll_request.pop())
                                 game = " ".join(poll_request[2:]).upper()
+                                new_content = await get_game_gif(game)
                                 new_content = "**{}**\n".format(game)+new_content
-                            bot_msg = await message.channel.send(content=new_content)
-                            await bot_msg.add_reaction('👍')
-                            await bot_msg.add_reaction('👎')
-                            await bot_msg.add_reaction('🤷')
-                            if bot_msg not in headcount_requests:
-                                headcount_requests[bot_msg.id] = (member.mention,requested_count,game)
+                                bot_msg = await message.channel.send(content=new_content)
+                                await bot_msg.add_reaction('👍')
+                                await bot_msg.add_reaction('👎')
+                                await bot_msg.add_reaction('🤷')
+                                if bot_msg not in headcount_requests:
+                                    headcount_requests[bot_msg.id] = (member.mention,requested_count,game)
                         else:
                             await message.add_reaction('👍')
                             await message.add_reaction('👎')
@@ -322,6 +323,21 @@ async def on_message(message):
                 finally:
                     colors = []
                     plt.clf()
+
+async def get_game_gif(game=None):
+    default_gif = "https://tenor.com/view/roll-call-head-count-attendance-name-calling-call-out-gif-15740804"
+    
+    game.replace(" ","+")
+    total = 20
+    r = requests.get(
+    "https://api.tenor.com/v1/search?q={}&key={}&limit={}".format(game, config['tenor_api_key'],total))
+
+    if r.status_code == 200:
+        # return a random gif from the search
+        search_list = json.loads(r.content)["results"]
+        return search_list[random.randint(0,total)]['url']
+    else:
+        return default_gif
 
 @client.event
 async def on_reaction_add(reaction,member):
@@ -342,9 +358,6 @@ async def on_reaction_add(reaction,member):
             embed.add_field(name="Comrades:",value=comrades)
             await reaction.message.channel.send(embed=embed)
             del headcount_requests[reaction.message.id]
-
-
-
 
 @client.event
 async def on_member_join(member):
