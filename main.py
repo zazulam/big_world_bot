@@ -111,7 +111,7 @@ async def on_message(message):
                         embed.add_field(name="!ancestors [name]", value='Defaults to the person who made the command, shows the lineage tracing from this member all the way up to the First Borne')
                         embed.add_field(name="!family [name]",value="Defaults to the person who made the command, shows the parent and children of the member passed")
                         embed.add_field(name="!poll [question]",value="Added the appropriate reactions for a poll question a user has.")
-                        embed.add_field(name="!speak [audio]",value="Bot will join the voice channel that the user is currently in and speak the given audio file, current supported values for audio are: cut, fucked")
+                        embed.add_field(name="!speak [audio]",value="Bot will join the voice channel that the user is currently in and speak the given audio file, current supported values for audio are: bloody, cut, fucked")
                         embed.add_field(name="!poll headcount [game] [count]",value="A poll that will ping the author and all those who react with a :thumbsup: when the count is reach (excluding the bot and author)")
                         await message.channel.send(embed=embed)  
                     elif "roles" in command:
@@ -276,19 +276,23 @@ async def on_message(message):
                         os.remove("family_{}.png".format(root_member.name))
 
                     elif "speak" in command:
+                        audio_name = command.split()[-1].lower()+".mp3"
+                        print(audio_name)
                         if member.voice:
-                            voice_channel = member.voice.channel
-                            if client.user not in voice_channel.members:
-                                vc = await voice_channel.connect()
+                            audio_file_path = os.path.join("assets","audio",audio_name)
+                            if os.path.isfile(audio_file_path) and os.path.exists(audio_file_path):
+                                voice_channel = member.voice.channel
+                                if client.user not in voice_channel.members:
+                                    vc = await voice_channel.connect()
+                                else:
+                                    vc = client.voice_clients[0]
+                                vc.play(discord.FFmpegPCMAudio(audio_file_path))
+                                while vc.is_playing():
+                                    continue
+                                await vc.disconnect()
                             else:
-                                vc = client.voice_clients[0]
-                            if 'fucked' in command:
-                                vc.play(discord.FFmpegPCMAudio('fucked_up.mp3'))
-                            elif 'cut' in command:
-                                vc.play(discord.FFmpegPCMAudio('cut.mp3'))
-                            while vc.is_playing():
-                                continue
-                            await vc.disconnect()
+                                audio_not_found = "Sorry, but I haven't learned that phrase yet. You can let zazu know what you want him to teach me. In the meantime check out **!help** to see what I know."
+                                await message.channel.send(audio_not_found)
                         else:
                             await message.channel.send("How about you join the voice channel and say it yourself 🐔")
                     
@@ -316,7 +320,7 @@ async def on_message(message):
 
 
                 except Exception as ex:
-                    print(ex)
+                    print(ex.with_traceback())
                     error_msg = "zazu kinda sucks at coding so he doesn't know how to make me smart enough to handle whatever just happened. 🙄"
                     await message.channel.send(error_msg)
                     raise ex
@@ -328,16 +332,22 @@ async def get_game_gif(game=None):
     default_gif = "https://tenor.com/view/roll-call-head-count-attendance-name-calling-call-out-gif-15740804"
     
     game.replace(" ","+")
-    total = 20
-    r = requests.get(
-    "https://api.tenor.com/v1/search?q={}&key={}&limit={}".format(game, config['tenor_api_key'],total))
+    total = 50
+    try:
+        r = requests.get(
+        "https://api.tenor.com/v1/search?q={}&key={}&limit={}".format(game, config['tenor_api_key'],total))
 
-    if r.status_code == 200:
-        # return a random gif from the search
-        search_list = json.loads(r.content)["results"]
-        return search_list[random.randint(0,total)]['url']
-    else:
+        if r.status_code == 200:
+            # return a random gif from the search
+            search_list = json.loads(r.content)["results"]
+            random_index = random.randint(0,len(search_list)-1)
+            random_gif = search_list[random_index]['url']
+            default_gif = random_gif
+    except Exception as ex:
+        print("Error occurred while fetching random gif",ex,ex.with_traceback())
+    finally:
         return default_gif
+        
 
 @client.event
 async def on_reaction_add(reaction,member):
@@ -345,7 +355,7 @@ async def on_reaction_add(reaction,member):
     if member.bot:
         return
     if reaction.message.id in headcount_requests:
-        if reaction.count-2 >= headcount_requests[reaction.message.id][1]:
+        if reaction.count-1 >= headcount_requests[reaction.message.id][1]:
             game = headcount_requests[reaction.message.id][2]
             mention = headcount_requests[reaction.message.id][0]
             announcement = "{}, your poll for **{}** has received the requested amount of 👍. Your fellow comrades:\n".format(mention,game)
@@ -364,7 +374,8 @@ async def on_member_join(member):
     global last
     last = str(member.id)
 
-client.loop.create_task(fetch())
-client.run(config["bot_token"])
+if __name__ == "__main__":    
+    client.loop.create_task(fetch())
+    client.run(config["bot_token"])
 
 
