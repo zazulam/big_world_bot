@@ -317,7 +317,11 @@ async def on_message(message):
                             await message.add_reaction('🤷')
                         #TODO: Add some flares/updating for when a certain poll is created after hitting a specific number 
                         
-
+                    elif 'gifme' in command:
+                        name = command.split()
+                        game = " ".join(name[1:]).upper()
+                        gif = await get_game_gif(game)
+                        await message.channel.send(gif)
 
                 except Exception as ex:
                     print(ex.with_traceback())
@@ -334,8 +338,9 @@ async def get_game_gif(game=None):
     game.replace(" ","+")
     total = 50
     try:
-        r = requests.get(
-        "https://api.tenor.com/v1/search?q={}&key={}&limit={}".format(game, config['tenor_api_key'],total))
+        endpoint = "https://api.tenor.com/v1/search?q={}&key={}&limit={}".format(game, config['tenor_api_key'],total)
+        print(endpoint)
+        r = requests.get(endpoint)
 
         if r.status_code == 200:
             # return a random gif from the search
