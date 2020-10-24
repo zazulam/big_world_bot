@@ -27,6 +27,7 @@ colors = []
 headcount_requests = ExpiringDict(max_len=100, max_age_seconds=4800)
 invites = {}
 last = ""
+wildling_code  = "fpnrMdG"
 
 async def fetch():
     """
@@ -40,6 +41,7 @@ async def fetch():
     """
     global last
     global invites
+    global wildling_code
     await client.wait_until_ready()
     gld = client.get_guild(config["guild_id"])
     channel = gld.text_channels[0]
@@ -57,7 +59,14 @@ async def fetch():
                         inviters_role = i.inviter.name
                         print("inviter: ",inviters_role)
                         role_names =  {role.name:role for role in roles}
-                        if inviters_role in role_names:
+                        wildling_code  = "fpnrMdG"
+                        if i.code == wildling_code:
+                            await usr.add_roles(role_names['wildling'])
+                            embed = discord.Embed(title=f"{usr.name} is now a part of a Big World",description="Watch out! A new wildling has join the server!")
+                            inv_mention = i.inviter.mention
+                            embed.add_field(name="Invited By:",value="The wilderness\n Pulling in one from the dark!")
+                            await channel.send(embed=embed)
+                        elif inviters_role in role_names:
                             print(f"found role for {inviters_role}, adding {inviters_role} role to {usr.name}")
                             await usr.add_roles(role_names[inviters_role])
                             print("role successfully added")
@@ -99,6 +108,7 @@ async def on_message(message):
                 roles = member.guild.roles
                 global role_colors
                 global headcount_requests
+                global wildling_code
                 command = message.content[1:]
                 try:
                     global colors
@@ -113,6 +123,8 @@ async def on_message(message):
                         embed.add_field(name="!poll [question]",value="Added the appropriate reactions for a poll question a user has.")
                         embed.add_field(name="!speak [audio]",value="Bot will join the voice channel that the user is currently in and speak the given audio file, current supported values for audio are: bloody, cut, fucked")
                         embed.add_field(name="!poll headcount [game] [count]",value="A poll that will ping the author and all those who react with a :thumbsup: when the count is reach (excluding the bot and author)")
+                        embed.add_field(name="!gifme [wOrDz]",value="Have the bot pull a gif of whatever you want.")
+                        embed.add_field(name="!invite",value="General invite code for the wild.")
                         await message.channel.send(embed=embed)  
                     elif "roles" in command:
                         roles_str = "You can assign the following roles to yourself:\n"
@@ -322,6 +334,9 @@ async def on_message(message):
                         game = " ".join(name[1:]).upper()
                         gif = await get_game_gif(game)
                         await message.channel.send(gif)
+                    elif 'invite' in command:
+                        wildling_url = "https://discord.gg/{}".format(wildling_code)
+                        await message.channel.send(wildling_url)
 
                 except Exception as ex:
                     print(ex.with_traceback())
