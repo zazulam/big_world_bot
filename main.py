@@ -6,16 +6,21 @@ import sys
 import time
 from collections import deque
 from io import StringIO
-import requests
-import discord
+
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import networkx as nx
+import requests
+
+import discord
+import logging
 import text_to_image
 from discord.ext import commands
 from discord.utils import get
-from pptree import *
 from expiringdict import ExpiringDict
+from pptree import *
+
+logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s',filename=os.path.join("logs","error.log"),level=logging.ERROR)
 
 with open('config.json','r') as config_file:
     config = json.load(config_file)
@@ -28,6 +33,7 @@ headcount_requests = ExpiringDict(max_len=100, max_age_seconds=4800)
 invites = {}
 last = ""
 wildling_code  = "fpnrMdG"
+
 
 async def fetch():
     """
@@ -47,47 +53,51 @@ async def fetch():
     channel = gld.text_channels[0]
     print("channel: ",channel)
     while True:
-        invs = await gld.invites()
-        tmp = []
-        for i in invs:
-            for s in invites:
-                if s[0] == i.code:
-                    if int(i.uses) > s[1]:
-                        usr = gld.get_member(int(last))
-                        print("found new member: ",usr.name)
-                        roles = gld.roles
-                        inviters_role = i.inviter.name
-                        print("inviter: ",inviters_role)
-                        role_names =  {role.name:role for role in roles}
-                        wildling_code  = "fpnrMdG"
-                        if i.code == wildling_code:
-                            await usr.add_roles(role_names['wildling'])
-                            embed = discord.Embed(title=f"{usr.name} is now a part of a Big World",description="Watch out! A new wildling has join the server!")
-                            inv_mention = i.inviter.mention
-                            embed.add_field(name="Invited By:",value="The wilderness\n Pulling in one from the dark!")
-                            await channel.send(embed=embed)
-                        elif inviters_role in role_names:
-                            print(f"found role for {inviters_role}, adding {inviters_role} role to {usr.name}")
-                            await usr.add_roles(role_names[inviters_role])
-                            print("role successfully added")
-                            embed = discord.Embed(title=f"{usr.name} is now a part of a Big World",description="good thing you know someone in it 😎")
-                            inv_mention = i.inviter.mention
-                            embed.add_field(name="Invited By:",value=f"{inv_mention} \n Congratulations on the +1!")
-                            await channel.send(embed=embed)
-                        else:
-                            print(f"role not found for {inviters_role}, creating new role")
-                            new_role = await gld.create_role(name=inviters_role)
-                            await gld.edit_role_positions({new_role:13})
-                            await usr.add_roles(new_role)
-                            print(f"{inviters_role} role successfully created and added to {usr.name}")
-                            embed = discord.Embed(title=f"{usr.name} is now a part of a Big World",description="good thing you know someone in it 😎")
-                            inv_mention = i.inviter.mention
-                            embed.add_field(name=f"Invited By:",value="{} \n Congratulations on the +1!".format(inv_mention))
-                            embed.add_field(name=f"Role:{inviters_role}",value=f"{inv_mention} there is now a role named after you, anyone you invite will be assigned this role.")
-                            await channel.send(embed=embed)
-            tmp.append(tuple((i.code, i.uses)))
-        invites = tmp
-        await asyncio.sleep(4)
+        try:
+            invs = await gld.invites()
+            tmp = []
+            for i in invs:
+                for s in invites:
+                    if s[0] == i.code:
+                        if int(i.uses) > s[1]:
+                            usr = gld.get_member(int(last))
+                            print("found new member: ",usr.name)
+                            roles = gld.roles
+                            inviters_role = i.inviter.name
+                            print("inviter: ",inviters_role)
+                            role_names =  {role.name:role for role in roles}
+                            wildling_code  = "fpnrMdG"
+                            if i.code == wildling_code:
+                                await usr.add_roles(role_names['wildling'])
+                                embed = discord.Embed(title=f"{usr.name} is now a part of a Big World",description="Watch out! A new wildling has join the server!")
+                                inv_mention = i.inviter.mention
+                                embed.add_field(name="Invited By:",value="The wilderness\n Pulling in one from the dark!")
+                                await channel.send(embed=embed)
+                            elif inviters_role in role_names:
+                                print(f"found role for {inviters_role}, adding {inviters_role} role to {usr.name}")
+                                await usr.add_roles(role_names[inviters_role])
+                                print("role successfully added")
+                                embed = discord.Embed(title=f"{usr.name} is now a part of a Big World",description="good thing you know someone in it 😎")
+                                inv_mention = i.inviter.mention
+                                embed.add_field(name="Invited By:",value=f"{inv_mention} \n Congratulations on the +1!")
+                                await channel.send(embed=embed)
+                            else:
+                                print(f"role not found for {inviters_role}, creating new role")
+                                new_role = await gld.create_role(name=inviters_role)
+                                await gld.edit_role_positions({new_role:13})
+                                await usr.add_roles(new_role)
+                                print(f"{inviters_role} role successfully created and added to {usr.name}")
+                                embed = discord.Embed(title=f"{usr.name} is now a part of a Big World",description="good thing you know someone in it 😎")
+                                inv_mention = i.inviter.mention
+                                embed.add_field(name=f"Invited By:",value="{} \n Congratulations on the +1!".format(inv_mention))
+                                embed.add_field(name=f"Role:{inviters_role}",value=f"{inv_mention} there is now a role named after you, anyone you invite will be assigned this role.")
+                                await channel.send(embed=embed)
+                tmp.append(tuple((i.code, i.uses)))
+            invites = tmp
+            await asyncio.sleep(4)
+        except Exception as ex:
+            logging.error("Error on new joinee",ex,ex.with_traceback())
+
 
 @client.event
 async def on_ready():
@@ -156,6 +166,7 @@ async def on_message(message):
                         else:
                             sus_str = "🤡 It's probably you, {}. {} only barely has any SUS, with just {}%".format(member.name,player_name,percentage)
                         await message.channel.send(sus_str)             
+                    
                     elif "bigworld" in command:
                         G = nx.DiGraph()
                         family = deque()
@@ -195,14 +206,11 @@ async def on_message(message):
                                     print("inserting node: {} into family".format(child.name))
                                     family.append(child_node)
                         colors.pop()
-                        res = print_tree(root_node,horizontal=True)
                         nx.algorithms.coloring.strategy_connected_sequential_bfs(G,None)
                         layout = nx.spring_layout(G,k=4,iterations=50)
                         nx.draw(G,pos=layout, with_labels=True, node_color=colors, node_size=200, node_shape="o", alpha=0.5, linewidths=10, font_size=15,arrowsize=40, font_color="black", font_weight="bold", edge_color="black",cmap=plt.cm.Blues)
                         plt.savefig(f"bigworld_{member.name}.png")
-                        plt.clf()
                         await message.channel.send(file=discord.File(f"bigworld_{member.name}.png"))
-                        colors = []
                         os.remove(f"bigworld_{member.name}.png")         
                     
                     elif "ancestors" in command:
@@ -248,7 +256,6 @@ async def on_message(message):
                         layout = nx.nx.spring_layout(G,k=2,iterations=50)
                         nx.draw(G,pos=layout, with_labels=True,node_size=200, node_shape="o", alpha=0.5, linewidths=10, font_size=15,arrowsize=40, font_color="black", font_weight="bold", edge_color="black",cmap=plt.cm.Blues)
                         plt.savefig("ancestors_{}.png".format(root_member.name))
-                        plt.clf()
                         await message.channel.send(file=discord.File("ancestors_{}.png".format(root_member.name)))
                         
                         os.remove("ancestors_{}.png".format(root_member.name))             
@@ -282,7 +289,6 @@ async def on_message(message):
                         layout = nx.spring_layout(G,k=5,iterations=50)
                         nx.draw(G,pos=layout, with_labels=True, node_color=colors, node_size=200, node_shape="o", alpha=0.5, linewidths=10, font_size=15,arrowsize=40, font_color="black", font_weight="bold", edge_color="black",cmap=plt.cm.Blues)
                         plt.savefig("family_{}.png".format(root_member.name))
-                        plt.clf()
                         await message.channel.send(file=discord.File("family_{}.png".format(root_member.name)))
                         
                         os.remove("family_{}.png".format(root_member.name))
@@ -334,12 +340,13 @@ async def on_message(message):
                         game = " ".join(name[1:]).upper()
                         gif = await get_game_gif(game)
                         await message.channel.send(gif)
+
                     elif 'invite' in command:
                         wildling_url = "https://discord.gg/{}".format(wildling_code)
                         await message.channel.send(wildling_url)
 
                 except Exception as ex:
-                    print(ex.with_traceback())
+                    logging.error("Error on a bot command".format(command),ex,ex.with_traceback())
                     error_msg = "zazu kinda sucks at coding so he doesn't know how to make me smart enough to handle whatever just happened. 🙄"
                     await message.channel.send(error_msg)
                     raise ex
@@ -364,7 +371,7 @@ async def get_game_gif(game=None):
             random_gif = search_list[random_index]['url']
             default_gif = random_gif
     except Exception as ex:
-        print("Error occurred while fetching random gif",ex,ex.with_traceback())
+        logging.error("Error occurred while fetching random gif",ex,ex.with_traceback())
     finally:
         return default_gif
         
@@ -397,5 +404,3 @@ async def on_member_join(member):
 if __name__ == "__main__":    
     client.loop.create_task(fetch())
     client.run(config["bot_token"])
-
-
