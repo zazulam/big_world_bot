@@ -111,7 +111,6 @@ async def on_message(message):
         return
     
     member = message.author
-    print(member)
 
     if isinstance(message.content,str):
         if len(message.content) > 0:
@@ -260,16 +259,9 @@ async def on_message(message):
                         await message.channel.send(file=discord.File("ancestors_{}.png".format(root_member.name)))
                         
                         os.remove("ancestors_{}.png".format(root_member.name))             
-                    elif 'members' in command:
-                        print(member.guild)
-                        for mem in message.guild.members:
-                            print(mem)
-                        print(message.guild.member_count)
+
                     elif "family" in command:
                         if len(command.split())>1:
-                            print("member name: ",member.name)
-                            print(command.replace("family","").strip())
-                            print(member.guild.members)
                             root_member = get(member.guild.members,name=command.replace("family","").strip())
                             print(root_member)
                         else:
