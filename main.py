@@ -24,8 +24,8 @@ logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s',filename=os
 
 with open('config.json','r') as config_file:
     config = json.load(config_file)
-
-client = discord.Client()
+intents = discord.Intents.all()
+client = discord.Client(intents=intents)
 current_invites = {}
 role_colors = ['black','cyan','dark green','orange','lime green','white','red','blue','pink','purple','brown','yellow']
 colors = []
@@ -111,6 +111,7 @@ async def on_message(message):
         return
     
     member = message.author
+    print(member)
 
     if isinstance(message.content,str):
         if len(message.content) > 0:
@@ -131,7 +132,7 @@ async def on_message(message):
                         embed.add_field(name="!ancestors [name]", value='Defaults to the person who made the command, shows the lineage tracing from this member all the way up to the First Borne')
                         embed.add_field(name="!family [name]",value="Defaults to the person who made the command, shows the parent and children of the member passed")
                         embed.add_field(name="!poll [question]",value="Added the appropriate reactions for a poll question a user has.")
-                        embed.add_field(name="!speak [audio]",value="Bot will join the voice channel that the user is currently in and speak the given audio file, current supported values for audio are: bloody, cut, fucked")
+                        embed.add_field(name="!speak [audio]",value="Bot will join the voice channel that the user is currently in and speak the given audio file, current supported values for audio are: ambulance, believe, bloody, cut, fucked, jerry, out")
                         embed.add_field(name="!poll headcount [game] [count]",value="A poll that will ping the author and all those who react with a :thumbsup: when the count is reach (excluding the bot and author)")
                         embed.add_field(name="!gifme [wOrDz]",value="Have the bot pull a gif of whatever you want.")
                         embed.add_field(name="!invite",value="General invite code for the wild.")
@@ -259,9 +260,16 @@ async def on_message(message):
                         await message.channel.send(file=discord.File("ancestors_{}.png".format(root_member.name)))
                         
                         os.remove("ancestors_{}.png".format(root_member.name))             
-                    
+                    elif 'members' in command:
+                        print(member.guild)
+                        for mem in message.guild.members:
+                            print(mem)
+                        print(message.guild.member_count)
                     elif "family" in command:
                         if len(command.split())>1:
+                            print("member name: ",member.name)
+                            print(command.replace("family","").strip())
+                            print(member.guild.members)
                             root_member = get(member.guild.members,name=command.replace("family","").strip())
                             print(root_member)
                         else:
@@ -313,6 +321,7 @@ async def on_message(message):
                                 await message.channel.send(audio_not_found)
                         else:
                             await message.channel.send("How about you join the voice channel and say it yourself 🐔")
+                        await message.delete()
                     
                     elif "poll" in command:
                         if "headcount" in command.lower():
@@ -346,10 +355,9 @@ async def on_message(message):
                         await message.channel.send(wildling_url)
 
                 except Exception as ex:
-                    logging.error("Error on a bot command".format(command),ex,ex.with_traceback())
+                    logging.error("Error on a bot command: {}".format(command),ex)
                     error_msg = "zazu kinda sucks at coding so he doesn't know how to make me smart enough to handle whatever just happened. 🙄"
-                    await message.channel.send(error_msg)
-                    raise ex
+                    # await message.channel.send(error_msg)
                 finally:
                     colors = []
                     plt.clf()
@@ -371,7 +379,7 @@ async def get_game_gif(game=None):
             random_gif = search_list[random_index]['url']
             default_gif = random_gif
     except Exception as ex:
-        logging.error("Error occurred while fetching random gif",ex,ex.with_traceback())
+        logging.error("Error occurred while fetching random gif",ex)
     finally:
         return default_gif
         
