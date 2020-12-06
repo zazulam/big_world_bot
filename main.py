@@ -340,10 +340,14 @@ async def on_message(message):
                         #TODO: Add some flares/updating for when a certain poll is created after hitting a specific number 
                         
                     elif 'gifme' in command:
-                        name = command.split()
-                        game = " ".join(name[1:]).upper()
-                        gif = await get_game_gif(game)
-                        await message.channel.send(gif)
+                        if message.channel.name == 'all':
+                            bot_msg = "Feel free to use this command in any other channel besides #all."
+                            await message.channel.send(bot_msg)
+                        else:
+                            name = command.split()
+                            game = " ".join(name[1:]).upper()
+                            gif = await get_game_gif(game)
+                            await message.channel.send(gif)
 
                     elif 'invite' in command:
                         wildling_url = "https://discord.gg/{}".format(wildling_code)
