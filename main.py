@@ -29,6 +29,7 @@ client = discord.Client(intents=intents)
 current_invites = {}
 role_colors = ['black','cyan','dark green','orange','lime green','white','red','blue','pink','purple','brown','yellow']
 colors = []
+message_info = {}
 headcount_requests = ExpiringDict(max_len=100, max_age_seconds=4800)
 invites = {}
 last = ""
@@ -119,6 +120,7 @@ async def on_message(message):
                 global role_colors
                 global headcount_requests
                 global wildling_code
+                global message_info
                 command = message.content[1:]
                 try:
                     global colors
@@ -346,6 +348,39 @@ async def on_message(message):
                     elif 'invite' in command:
                         wildling_url = "https://discord.gg/{}".format(wildling_code)
                         await message.channel.send(wildling_url)
+
+                    elif 'profile' in command:
+                        member_info = {}
+                        member_info['joined_at'] = member.joined_at
+                        member_info['top_role'] = member.top_role
+                        member_info['avatar'] = member.avatar_url
+                        member_info['total_messages'] = 0
+                        channels = member.guild.text_channels
+                        for channel in channels:
+                            member_info[channel.name] = 0
+                            print("in channel: ",channel.name)
+                            async for msg in channel.history(limit=None):
+                                if msg.author == member:
+                                    member_info[channel.name] += 1
+                            member_info['total_messages'] += member_info[channel.name]
+                        embed = discord.Embed(title="Server Profile Information",description="Some little statistics/information for {}".format(member.mention),thumbnail=member_info['avatar'])
+                        embed.add_field(name="Joined at:", value=member_info['joined_at'])
+                        embed.add_field(name="Top Role:",value=member_info['top_role'])
+                        embed.add_field(name='Total Messages Sent:',value=member_info['total_messages'])
+                        print(member_info)
+                        await message.channel.send(embed=embed)
+                    
+                    elif "msg_load" in command:
+                        channels = member.guild.text_channels
+                        for mem in member.guild.members:
+                            message_info[mem.name] = 0
+                        for channel in channels:
+                            async for msg in channel.history(limit=None):
+                                if msg.author.name in message_info:
+                                    message_info[msg.author.name] += 1
+                                else:
+                                    print(msg.author.name," not in message_info")
+                        await message.channel.send(message_info)
 
                 except Exception as ex:
                     logging.error("Error on a bot command: {}".format(command),ex)
