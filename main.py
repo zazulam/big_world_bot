@@ -135,7 +135,7 @@ async def on_message(message):
                         embed.add_field(name="!poll [question]",value="Added the appropriate reactions for a poll question a user has.")
                         embed.add_field(name="!speak [audio]",value="Bot will join the voice channel that the user is currently in and speak the given audio file, current supported values for audio are: ambulance, believe, bloody, cut, fucked, jerry, out")
                         embed.add_field(name="!poll headcount [game] [count]",value="A poll that will ping the author and all those who react with a :thumbsup: when the count is reach (excluding the bot and author)")
-                        embed.add_field(name="!gifme [wOrDz]",value="Have the bot pull a gif of whatever you want.")
+                        embed.add_field(name="!gifme [wOrDz]",value="Have the bot pull a gif of whatever you want, just not in #all")
                         embed.add_field(name="!invite",value="General invite code for the wild.")
                         await message.channel.send(embed=embed)  
                     elif "roles" in command:
@@ -340,10 +340,7 @@ async def on_message(message):
                         #TODO: Add some flares/updating for when a certain poll is created after hitting a specific number 
                         
                     elif 'gifme' in command:
-                        if message.channel.name == 'all':
-                            bot_msg = "Feel free to use this command in any other channel besides #all."
-                            await message.channel.send(bot_msg)
-                        else:
+                        if message.channel.name != 'all':
                             name = command.split()
                             game = " ".join(name[1:]).upper()
                             gif = await get_game_gif(game)
