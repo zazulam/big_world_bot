@@ -1,8 +1,8 @@
 import asyncio
 import json
 import os
+import ast
 import random
-import sys
 import time
 from collections import deque
 from io import StringIO
@@ -11,7 +11,9 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import networkx as nx
 import requests
-
+import sys
+import contextlib
+from io import StringIO
 import discord
 import logging
 import text_to_image
@@ -383,6 +385,23 @@ async def on_message(message):
                                     print(msg.author.name," not in message_info")
                         await message.channel.send(message_info)
 
+                    elif "python" in command:
+                        try:
+                            formatted_code = command[7:]
+                            code = command[11:len(command)-3]
+                            ast_node = ast.parse(code)
+                            src = ast.dump(ast_node)
+                            if 'open' in src:
+                                bot_msg = "Idk...this code is a little sus.."
+                                await message.channel.send(bot_msg)
+                            else:
+                                with stdoutIO() as s:
+                                    exec(code)
+                                bot_msg = formatted_code+"\n**Output:**\n"+s.getvalue()
+                                await message.channel.send(bot_msg)
+                        except Exception as ex:
+                            await message.channel.send(ex)
+
                 except Exception as ex:
                     logging.error("Error on a bot command: {}".format(command),ex)
                     error_msg = "zazu kinda sucks at coding so he doesn't know how to make me smart enough to handle whatever just happened. 🙄"
@@ -390,6 +409,15 @@ async def on_message(message):
                 finally:
                     colors = []
                     plt.clf()
+
+@contextlib.contextmanager
+def stdoutIO(stdout=None):
+    old = sys.stdout
+    if stdout is None:
+        stdout = StringIO()
+    sys.stdout = stdout
+    yield stdout
+    sys.stdout = old
 
 async def get_game_gif(game=None):
     default_gif = "https://tenor.com/view/roll-call-head-count-attendance-name-calling-call-out-gif-15740804"
