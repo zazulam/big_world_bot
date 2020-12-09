@@ -402,6 +402,14 @@ async def on_message(message):
                         except Exception as ex:
                             await message.channel.send(ex)
 
+                    elif "pic" in command:
+                        try:
+                            member_name = command[3:].strip()
+                            member = get(member.guild.members,name=member_name)
+                            await message.channel.send(member.avatar_url_as(format='png',size=256))
+                        except Exception as ex:
+                            print(ex)
+
                 except Exception as ex:
                     logging.error("Error on a bot command: {}".format(command),ex)
                     error_msg = "zazu kinda sucks at coding so he doesn't know how to make me smart enough to handle whatever just happened. 🙄"
