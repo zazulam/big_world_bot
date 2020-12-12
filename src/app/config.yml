@@ -1,0 +1,32 @@
+bot_token : NzU5NTQ3MDcyMzE1MjYwOTM4.X2_FVQ.FSYPXYZvQDw4WXhPWaH57rR2RMQ
+
+guild_id : 618468327404339220
+
+tenor_api_key : BZYFANJG3LVE
+
+role_colors : 
+  - black
+  - cyan
+  - dark green
+  - orange
+  - lime green
+  - white
+  - red
+  - blue
+  - pink
+  - purple
+  - brown
+  - yellow
+wildling_code : fpnrMdG
+
+audio_resources : 
+  - app
+  - res
+  - assets
+  - audio
+
+image_resources :
+  - app
+  - res
+  - assets
+  - images
