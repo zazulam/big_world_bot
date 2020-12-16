@@ -1,7 +1,8 @@
+import os
 import discord
 from discord.ext import commands
 from discord.utils import get
-from . import Config
+
 
 class Voice(commands.Cog):
     def __init__(self, bot):
@@ -13,7 +14,11 @@ class Voice(commands.Cog):
         audio_name += ".mp3"
         member = ctx.author
         if member.voice:
-            audio_file_path = os.path.join("assets","audio",audio_name)
+            print(os.path.join(os.getcwd(),self.bot.config.audio_resources,audio_name))
+            print(os.getcwd())
+            audio_file_path = os.path.join(os.getcwd(),self.bot.config.audio_resources,audio_name)
+            print(os.path.isfile(audio_file_path))
+            print(os.path.exists(audio_file_path))
             if os.path.isfile(audio_file_path) and os.path.exists(audio_file_path):
                 voice_channel = member.voice.channel
                 if self.bot.user not in voice_channel.members:
@@ -30,3 +35,6 @@ class Voice(commands.Cog):
         else:
             await ctx.channel.send("How about you join the voice channel and say it yourself 🐔")
         await ctx.message.delete()
+
+def setup(bot):
+    bot.add_cog(Voice(bot))
