@@ -6,10 +6,15 @@ import os
 
 
 def main():
-    #Initialize config & bot
+    
+    #Initialize config & bot & intents
+    intents = discord.Intents.default()
+    intents.members = True
     c = Config()
     b = Bot(
         c.command_prefix,
+        intents,
+        "some rando coding",
         c.audio_resources,
         c.image_resources,
         c.tenor_api_key,
@@ -48,13 +53,16 @@ def main():
                             f.write(file)
                         
                         b.load_extension(extension)
+                        await ctx.channel.send(f"successfully loaded {extension}")
                 else:
                     await ctx.channel.send("Only python files can be loaded")
             else:
                 if os.path.exists(os.path.join(os.getcwd(),"big_world","cogs",extension+".py")):
                     b.load_extension(f"big_world.cogs.{extension}")
+                    await ctx.channel.send(f"successfully loaded {extension}")
                 elif os.path.exists(os.path.join(os.getcwd(),"big_world","cogs","addons",extension+".py")):
                     b.load_extension(f"big_world.cogs.addons.{extension}")
+                    await ctx.channel.send(f"successfully loaded {extension}")
                 else:
                     await ctx.channel.send(f"The extension {extension} does not exist")            
         except Exception as ex:
@@ -73,13 +81,12 @@ def main():
     @b.command()
     @commands.check(can_code)
     async def reload(ctx, extension):
-        b.unload(ctx, extension)
-        b.load(ctx, extension)
+        await unload(ctx, extension)
+        await load(ctx, extension)
 
 
-
+    b.load_extension("big_world.cogs.invite_tracker")
     b.run(c.bot_token)
 
 if __name__ == '__main__':
     main()
-    
