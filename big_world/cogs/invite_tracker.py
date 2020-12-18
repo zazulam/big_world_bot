@@ -19,10 +19,36 @@ class InviteTracker(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self,member):
-        print("on member triggered")
-        await member.guild.text_channels[0].send(f"My bot is watching you {member.name}")
+        await member.guild.text_channels[0].send(f"My bot is watching you {member.mention}")
         await self.track(member)
     
+    @commands.Cog.listener()
+    async def on_member_remove(self,member):
+        #Get member's roles to check for parent role
+        member_roles = member.roles
+        parent_role = None
+        for role in member_roles:
+            possible_parent = get(member.guild.members,name=role.name)
+            if possible_parent:
+                parent_role = role
+                break
+        #Get any role named after member to check for children
+        children = []
+        for mem in member.guild.members:
+            mem_roles = [r.name for r in mem.roles]
+            if member.name.lower() in mem_roles:
+                children.append(mem)
+        #link the parent role to the children
+        if parent_role and children:
+            for child in children:
+                await child.add_roles(parent_role)
+        #Check for any possible test channels and delete them
+        name = member.name.strip().lower()
+        text_channels = member.guild.text_channels
+        member_channel = [t for t in text_channels if t.name == f'{name}-test']
+        if member_channel:
+            await member_channel[0].delete()
+
     async def track(self,member=None):
         """
         Steps to auto assign role on new member joining:

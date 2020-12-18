@@ -12,7 +12,9 @@ class Quiz(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
+        # If the diff between before and after is the Wildling role
         if 'wildling' not in [r.name for r in before.roles] and 'wildling' in [r.name for r in after.roles]:
+            # Initialize Quiz for new joinees
             time.sleep(3)
             channels = after.guild.text_channels
             channel = [c for c in channels if c.name == f"{after.name.lower()}-test"]
@@ -22,6 +24,8 @@ class Quiz(commands.Cog):
             last_msg = await channel.send(embed=embed)
             self.quiz_book.add(last_msg.id)
             await last_msg.add_reaction('👍')
+        # Check if member name was updated so role can be updated
+        elif 
 
     @commands.Cog.listener()
     async def on_reaction_add(self, reaction, member):
