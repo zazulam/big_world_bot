@@ -35,9 +35,11 @@ class InviteTracker(commands.Cog):
         #Get any role named after member to check for children
         children = []
         for mem in member.guild.members:
-            mem_roles = [r.name for r in mem.roles]
-            if member.name.lower() in mem_roles:
-                children.append(mem)
+            mem_roles = mem.roles
+            for role in mem_roles:
+                if member.name.lower() == role.name:
+                    children.append(mem)
+                    await mem.remove_roles(role)
         #link the parent role to the children
         if parent_role and children:
             for child in children:
@@ -63,7 +65,6 @@ class InviteTracker(commands.Cog):
         await self.bot.wait_until_ready()
         gld = self.bot.get_guild(member.guild.id)
         channel = gld.text_channels[0]
-        print("channel: ",channel)
         while True:
             try:
                 invs = await gld.invites()
@@ -72,10 +73,8 @@ class InviteTracker(commands.Cog):
                         if s.code == i.code:
                             if int(i.uses) > s.uses:
                                 usr = member
-                                print("found new member: ",usr.name)
                                 roles = gld.roles
                                 inviters_role = i.inviter.name
-                                print("inviter: ",inviters_role)
                                 role_names =  {role.name:role for role in roles}
                                 if i.code == wildling_code:
                                    
@@ -94,19 +93,15 @@ class InviteTracker(commands.Cog):
                                     embed.add_field(name="Invited By:",value="The wilderness\n Pulling in one from the dark!")
                                     await channel.send(embed=embed)
                                 elif inviters_role in role_names:
-                                    print(f"found role for {inviters_role}, adding {inviters_role} role to {usr.name}")
                                     await usr.add_roles(role_names[inviters_role])
-                                    print("role successfully added")
                                     embed = discord.Embed(title=f"{usr.name} is now a part of a Big World",description="good thing you know someone in it 😎")
                                     inv_mention = i.inviter.mention
                                     embed.add_field(name="Invited By:",value=f"{inv_mention} \n Congratulations on the +1!")
                                     await channel.send(embed=embed)
                                 else:
-                                    print(f"role not found for {inviters_role}, creating new role")
                                     new_role = await gld.create_role(name=inviters_role)
                                     await gld.edit_role_positions({new_role:13})
                                     await usr.add_roles(new_role)
-                                    print(f"{inviters_role} role successfully created and added to {usr.name}")
                                     embed = discord.Embed(title=f"{usr.name} is now a part of a Big World",description="good thing you know someone in it 😎")
                                     inv_mention = i.inviter.mention
                                     embed.add_field(name=f"Invited By:",value="{} \n Congratulations on the +1!".format(inv_mention))
@@ -116,6 +111,7 @@ class InviteTracker(commands.Cog):
                 break
             except Exception as ex:
                 print("Error on new joinee",ex,ex.with_traceback())
+
 def setup(bot):
     i = InviteTracker(bot)
     bot.add_cog(i)

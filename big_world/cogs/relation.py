@@ -132,6 +132,6 @@ class Relation(commands.Cog):
     
     @commands.command()
     async def lineage(self, ctx, member:discord.Member = None):
-        pass
+        await ctx.channel.send("It ain't done yet  ¯\_(ツ)_/¯")
     
     

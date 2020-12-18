@@ -1,6 +1,4 @@
-
 from discord.ext import commands
-
 
 class Bot(commands.Bot):
     def __init__(self, command_prefix,intents,description,audio_path,image_path,tenor,wildling_code,role_colors):
