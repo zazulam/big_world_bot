@@ -339,7 +339,6 @@ async def on_message(message):
                             await message.add_reaction('👍')
                             await message.add_reaction('👎')
                             await message.add_reaction('🤷')
-                        #TODO: Add some flares/updating for when a certain poll is created after hitting a specific number 
                         
                     elif 'gifme' in command:
                         if message.channel.name != 'all':

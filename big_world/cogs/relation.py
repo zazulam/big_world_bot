@@ -134,4 +134,5 @@ class Relation(commands.Cog):
     async def lineage(self, ctx, member:discord.Member = None):
         await ctx.channel.send("It ain't done yet  ¯\_(ツ)_/¯")
     
-    
+def setup(bot):
+    bot.add_cog(Relation(bot))

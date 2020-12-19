@@ -1,5 +1,6 @@
 from big_world.bot import Bot
 from big_world.setup.config import Config
+# from big_world.setup.connector import Connector
 import discord
 from discord.ext import commands
 import os
@@ -11,16 +12,19 @@ def main():
     intents = discord.Intents.default()
     intents.members = True
     c = Config()
+    # connection = Connector(c.AWS_RESOURCE,c.AWS_REGION)
+    description = "A bot that you may find useful"
     b = Bot(
         c.command_prefix,
         intents,
-        "some rando coding",
+        description,
+        # connection,
         c.audio_resources,
         c.image_resources,
         c.tenor_api_key,
-        c.wildling_code,
+        c.randoms_code,
         c.role_colors)
-    
+    b.remove_command("help")
     async def can_code(ctx):
         member = ctx.author
         roles = member.roles

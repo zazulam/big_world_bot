@@ -17,7 +17,7 @@ class Quiz(commands.Cog):
             if role:
                 await role.edit(name=after.name.lower())
         # If the diff between before and after is the Wildling role
-        if 'wildling' not in [r.name for r in before.roles] and 'wildling' in [r.name for r in after.roles]:
+        if 'randoms' not in [r.name for r in before.roles] and 'randoms' in [r.name for r in after.roles]:
             # Initialize Quiz for new joinees
             time.sleep(3)
             channels = after.guild.text_channels
@@ -47,13 +47,14 @@ class Quiz(commands.Cog):
                 await last_msg.add_reaction('🇨')
                 await last_msg.add_reaction('🇩')
             else:
-                role = [r for r in member.roles if r.name == "wildling"]
+                role = [r for r in member.roles if r.name == "randoms"]
 
                 await member.remove_roles(role[0])
-                
+                await 
                 await reaction.message.channel.send("That's it! You're correct!\nThis channel will now disappear...")
-                time.sleep(8)
+                time.sleep(5)
                 await reaction.message.channel.delete()
+        
                 
             
 def setup(bot):

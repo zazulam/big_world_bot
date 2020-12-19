@@ -8,7 +8,6 @@ class InviteTracker(commands.Cog):
     
     @commands.Cog.listener('on_ready')
     async def get_invites(self):
-        print("inside get invites")
         self.guilds = self.bot.guilds
         self.gld_invites = {}
         for gld in self.guilds:
@@ -16,6 +15,20 @@ class InviteTracker(commands.Cog):
             invs = await gld.invites()
             for inv in invs:
                 self.gld_invites[gld].append(inv)
+    
+    async def is_mod(ctx):
+        roles = [r.name for r in ctx.author.roles if r.name == ctx.author.guild.roles[0]]
+        return roles
+
+    @commands.check(is_mod)
+    @commands.command()
+    async def update_wildling_invite(self,ctx):
+        invites = await ctx.guild.invites()
+        wildling_invite = [inv for inv in invites if inv.code == self.bot.randoms_code]
+        if wildling_invite:
+            await wildling_invite.delete()
+            new_wildling_inv = await ctx.channel.create_invite(max_age=0,max_uses=0)
+            self.bot.update_randoms_code(new_wildling_inv.code)
 
     @commands.Cog.listener()
     async def on_member_join(self,member):
@@ -61,7 +74,7 @@ class InviteTracker(commands.Cog):
         5. If Role exists named after creator, assign Role to new member
         6. Else create Role then assign to new member
         """        
-        wildling_code = "PsNABbD83v" # self.bot.wildling_code
+        randoms_code = "PsNABbD83v" # self.bot.randoms_code
         await self.bot.wait_until_ready()
         gld = self.bot.get_guild(member.guild.id)
         channel = gld.text_channels[0]
@@ -76,7 +89,7 @@ class InviteTracker(commands.Cog):
                                 roles = gld.roles
                                 inviters_role = i.inviter.name
                                 role_names =  {role.name:role for role in roles}
-                                if i.code == wildling_code:
+                                if i.code == randoms_code:
                                    
                                     embed = discord.Embed(title=f"{usr.name} is now a part of a Big World",description="Watch out! A new wildling has join the server!")
                                     inv_mention = i.inviter.mention
