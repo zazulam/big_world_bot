@@ -430,9 +430,9 @@ async def get_game_gif(game=None):
     default_gif = "https://tenor.com/view/roll-call-head-count-attendance-name-calling-call-out-gif-15740804"
     
     game.replace(" ","+")
-    total = 100
+    total = 50
     try:
-        endpoint = "https://api.tenor.com/v1/search?q={}&key={}&limit={}".format(game, config['tenor_api_key'],total)
+        endpoint = "https://api.tenor.com/v1/search?q={}&key={}&limit={}&pos=50".format(game, config['tenor_api_key'],total)
         print(endpoint)
         r = requests.get(endpoint)
 
