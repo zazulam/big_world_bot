@@ -12,4 +12,4 @@ class Bot(commands.Bot):
 
     async def update_wildling_invite(self, new_code):
         self.randoms_code = new_code
-        #update randoms_code in big_world table
+        

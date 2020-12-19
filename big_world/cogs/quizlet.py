@@ -50,12 +50,26 @@ class Quiz(commands.Cog):
                 role = [r for r in member.roles if r.name == "randoms"]
 
                 await member.remove_roles(role[0])
-                await 
+                roles = member.guild.roles()
+                role = [role for role in roles if role.name == 'wildling']
                 await reaction.message.channel.send("That's it! You're correct!\nThis channel will now disappear...")
                 time.sleep(5)
                 await reaction.message.channel.delete()
-        
-                
-            
+        else:
+            if reaction.message.id in self.bot.headcounts:
+                if reaction.count-1 >= self.bot.headcounts[reaction.message.id][1]:
+                    game = self.bot.headcounts[reaction.message.id][2]
+                    mention = self.bot.headcounts[reaction.message.id][0]
+                    announcement = "{}, your poll for **{}** has received the requested amount of 👍. Your fellow comrades:\n".format(mention,game)
+                    comrades = ""
+                    async for mem in reaction.users():
+                        if not mem.bot:
+                            comrades = comrades + mem.mention+"\n"
+                    announcement = announcement+comrades
+                    embed = discord.Embed(title="{} Request".format(game),description="{} your poll has received the desired amount of 👍s.".format(mention))
+                    embed.add_field(name="Comrades:",value=comrades)
+                    await reaction.message.channel.send(embed=embed)
+                    del self.bot.headcounts[reaction.message.id]
+
 def setup(bot):
     bot.add_cog(Quiz(bot))

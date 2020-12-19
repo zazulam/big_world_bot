@@ -21,7 +21,7 @@ class Relation(commands.Cog):
         root_member = member or guild.owner
         root_name = root_member.name
 
-        graph.add_node(root_name,image=root_member.avatar_url_as(size=4))   
+        graph.add_node(root_name,image=root_member.avatar_url_as(size=16))   
         current_color = "red"
         colors.append(current_color)
         role = get(guild.roles,name=root_name)
@@ -33,7 +33,7 @@ class Relation(commands.Cog):
         while queue:
             current_node = queue.popleft()
             current_member = get(guild.members,name=current_node.name)
-            graph.add_node(current_node.name,image=current_member.avatar_url_as(size=4))
+            graph.add_node(current_node.name,image=current_member.avatar_url_as(size=16))
             colors.append("skyblue")
             if current_node.parent:
                 graph.add_edge(current_node.parent.name,current_node.name)
@@ -49,10 +49,11 @@ class Relation(commands.Cog):
         nx.algorithms.coloring.strategy_connected_sequential_bfs(graph,None)
         layout = nx.spring_layout(graph,k=4,iterations=50)
         nx.draw(graph,pos=layout, with_labels=True, node_color=colors, node_size=200, node_shape="o", alpha=0.5, linewidths=10, font_size=15,arrowsize=40, font_color="black", font_weight="bold", edge_color="black",cmap=plt.cm.Blues)
-        img_path = os.path.join(self.bot.image_resources,"bigworld_{}.png".format(root_member.name))
+        img_path = os.path.join(self.bot.image,"bigworld_{}.png".format(root_member.name))
         plt.savefig(img_path)
         await ctx.channel.send(file=discord.File(img_path))
         os.remove(img_path)
+        plt.clf()
 
     @commands.command()
     async def ancestors(self, ctx, member:discord.Member = None):
@@ -90,11 +91,12 @@ class Relation(commands.Cog):
         
         layout = nx.spring_layout(graph,k=2,iterations=50)
         nx.draw(graph,pos=layout, with_labels=True,node_size=200, node_shape="o", alpha=0.5, linewidths=10, font_size=15,arrowsize=40, font_color="black", font_weight="bold", edge_color="black",cmap=plt.cm.Blues)
-        img_path = os.path.join(self.bot.image_resources,"ancestors_{}.png".format(root_member.name))
+        img_path = os.path.join(self.bot.image,"ancestors_{}.png".format(root_member.name))
         plt.savefig(img_path)
         await ctx.channel.send(file=discord.File(img_path))
         
         os.remove(img_path)
+        plt.clf()
         
     @commands.command()
     async def family(self, ctx, member:discord.Member = None):
@@ -123,12 +125,13 @@ class Relation(commands.Cog):
         colors = colors[:graph.number_of_nodes()]
         layout = nx.spring_layout(graph,k=5,iterations=50)
         nx.draw(graph,pos=layout,with_labels=True,node_color=colors,node_size=200, node_shape="o", alpha=0.5, linewidths=10, font_size=15,arrowsize=40, font_color="black", font_weight="bold", edge_color="black",cmap=plt.cm.Blues)
-        img_path = os.path.join(self.bot.image_resources,"family_{}.png".format(root_member.name))
+        img_path = os.path.join(self.bot.image,"family_{}.png".format(root_member.name))
 
         plt.savefig(img_path)
         await ctx.channel.send(file=discord.File(img_path))
         
-        os.remove("family_{}.png".format(root_member.name))
+        os.remove(img_path)
+        plt.clf()
     
     @commands.command()
     async def lineage(self, ctx, member:discord.Member = None):

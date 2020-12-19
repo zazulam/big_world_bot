@@ -6,6 +6,13 @@ class InviteTracker(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
     
+    @commands.command()
+    async def invite(self,ctx):
+        invites = await ctx.guild.invites()
+        randoms_invite = [inv for inv in invites if inv.code == self.bot.randoms_code]
+        if randoms_invite:
+            await ctx.channel.send(randoms_invite[0].url)
+
     @commands.Cog.listener('on_ready')
     async def get_invites(self):
         self.guilds = self.bot.guilds
@@ -22,13 +29,13 @@ class InviteTracker(commands.Cog):
 
     @commands.check(is_mod)
     @commands.command()
-    async def update_wildling_invite(self,ctx):
+    async def update_randoms_invite(self,ctx):
         invites = await ctx.guild.invites()
-        wildling_invite = [inv for inv in invites if inv.code == self.bot.randoms_code]
-        if wildling_invite:
-            await wildling_invite.delete()
-            new_wildling_inv = await ctx.channel.create_invite(max_age=0,max_uses=0)
-            self.bot.update_randoms_code(new_wildling_inv.code)
+        randoms_invite = [inv for inv in invites if inv.code == self.bot.randoms_code]
+        if randoms_invite:
+            await randoms_invite[0].delete()
+            new_randoms_inv = await ctx.channel.create_invite(max_age=0,max_uses=0)
+            self.bot.update_randoms_code(new_randoms_inv.code)
 
     @commands.Cog.listener()
     async def on_member_join(self,member):
@@ -74,7 +81,7 @@ class InviteTracker(commands.Cog):
         5. If Role exists named after creator, assign Role to new member
         6. Else create Role then assign to new member
         """        
-        randoms_code = "PsNABbD83v" # self.bot.randoms_code
+        randoms_code = self.bot.randoms_code
         await self.bot.wait_until_ready()
         gld = self.bot.get_guild(member.guild.id)
         channel = gld.text_channels[0]

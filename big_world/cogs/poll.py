@@ -35,7 +35,6 @@ class Poll(commands.Cog):
 
     @commands.command(description="Request a Among with a number of people i.e. Among Us 9")
     async def headcount(self, ctx, *args):
-        print(args)
         game = ' '.join(args)
         poll_request = game.split()
         requested_count = int(poll_request.pop())
@@ -63,16 +62,11 @@ class Poll(commands.Cog):
             default_gif = next(self.oops_gifs)
             gif_name = gif_name.replace(" ","+")
             total = 50
-            endpoint = "https://api.tenor.com/v1/search?q={}&key={}&limit={}".format(gif_name, self.bot.tenor,total)
-            print(endpoint)
+            endpoint = "https://api.tenor.com/v1/search?q={}&key={}&limit={}&pos=50".format(gif_name, self.bot.tenor,total)
             r = requests.get(endpoint)
-            print(r)
             if r.status_code == 200:
-                print("inside if")
                 # return a random gif from the search
-                print(r.content)
                 search_list = json.loads(r.content)["results"]
-                print(search_list)
                 random_index = random.randint(0,len(search_list)-1)
                 random_gif = search_list[random_index]['url']
                 default_gif = random_gif

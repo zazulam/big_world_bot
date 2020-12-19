@@ -30,6 +30,21 @@ def main():
         roles = member.roles
         return 'can_code' in [role.name for role in roles]
 
+    @b.command()
+    async def help(ctx):
+        embed = discord.Embed(title="Tasks assigned for Bot Imposter:",description="Try out the following commands:")
+        embed.add_field(name="!available_roles",value="Lists the available roles you can assign to yourself...its just your color")
+        embed.add_field(name="!role_color [color]",value="The color you want to assign to youself 🎨")
+        embed.add_field(name="!bigworld [name]", value="Default name is Noonz, shows all the relationships that stem from the name passed")
+        embed.add_field(name="!ancestors [name]", value='Defaults to the person who made the command, shows the lineage tracing from this member all the way up to the First Borne')
+        embed.add_field(name="!family [name]",value="Defaults to the person who made the command, shows the parent and children of the member passed")
+        embed.add_field(name="!poll [question]",value="Added the appropriate reactions for a poll question a user has.")
+        embed.add_field(name="!speak [audio]",value="Bot will join the voice channel that the user is currently in and speak the given audio file, current supported values for audio are: ambulance, believe, bloody, cut, fucked, jerry, out")
+        embed.add_field(name="!headcount [game] [count]",value="A poll that will ping the author and all those who react with a :thumbsup: when the count is reach (excluding the bot and author)")
+        embed.add_field(name="!gifme [wOrDz]",value="Have the bot pull a gif of whatever you want, just not in #all")
+        embed.add_field(name="!invite",value="General invite code for the wild.")
+        await ctx.channel.send(embed=embed)
+
     @b.event
     async def on_ready():
         await b.change_presence(activity=discord.Activity(name="Bits and Bytes",type=2))
@@ -90,6 +105,11 @@ def main():
 
 
     b.load_extension("big_world.cogs.invite_tracker")
+    b.load_extension("big_world.cogs.poll")
+    b.load_extension("big_world.cogs.quizlet")
+    b.load_extension("big_world.cogs.relation")
+    b.load_extension("big_world.cogs.role_assigner")
+    b.load_extension("big_world.cogs.voice")
     b.run(c.bot_token)
 
 if __name__ == '__main__':
