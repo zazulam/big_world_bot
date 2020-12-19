@@ -22,13 +22,11 @@ class Quiz(commands.Cog):
             time.sleep(3)
             channels = after.guild.text_channels
             channel = [c for c in channels if c.name == f"{after.name.lower()}-test"]
-            if channels:
+            if channel:
                 channel = channel[0]
                 embed = discord.Embed(title="Are you ready for your test?",description="Let's see how big brain you are.\nLike this message to start.")
-                
                 last_msg = await channel.send(embed=embed)
                 await last_msg.add_reaction('👍')
-        
 
     @commands.Cog.listener()
     async def on_reaction_add(self, reaction, member):
@@ -50,8 +48,9 @@ class Quiz(commands.Cog):
                 role = [r for r in member.roles if r.name == "randoms"]
 
                 await member.remove_roles(role[0])
-                roles = member.guild.roles()
+                roles = member.guild.roles
                 role = [role for role in roles if role.name == 'wildling']
+                await member.add_roles(role[0])
                 await reaction.message.channel.send("That's it! You're correct!\nThis channel will now disappear...")
                 time.sleep(5)
                 await reaction.message.channel.delete()

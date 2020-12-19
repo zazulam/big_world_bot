@@ -98,19 +98,21 @@ class InviteTracker(commands.Cog):
                                 role_names =  {role.name:role for role in roles}
                                 if i.code == randoms_code:
                                    
-                                    embed = discord.Embed(title=f"{usr.name} is now a part of a Big World",description="Watch out! A new wildling has join the server!")
+                                    embed = discord.Embed(title=f"{usr.name} is now a part of a Big World",description="Watch out! A new random has join the server!")
                                     inv_mention = i.inviter.mention
                                     # Create channel specific to user
                                     
                                     overwrites = {
                                         gld.roles[0]:discord.PermissionOverwrite(manage_channels=True,read_messages=True),
+                                        role_names['mods']:discord.PermissionOverwrite(manage_channels=True,read_messages=True),
+                                        role_names['can_code']:discord.PermissionOverwrite(manage_channels=True,read_messages=True),
                                         gld.default_role: discord.PermissionOverwrite(read_messages=False),
                                         gld.me: discord.PermissionOverwrite(read_messages=True,send_messages=True),
                                         usr: discord.PermissionOverwrite(read_messages=True,send_messages=False)
                                     }
                                     usr_channel = await  gld.create_text_channel(f"{usr.name.lower()}-test",overwrites=overwrites)
-                                    await usr.add_roles(role_names['wildling'])
-                                    embed.add_field(name="Invited By:",value="The wilderness\n Pulling in one from the dark!")
+                                    await usr.add_roles(role_names['randoms'])
+                                    embed.add_field(name="Invited By:",value="Unknown\n Pulling in one from the dark!")
                                     await channel.send(embed=embed)
                                 elif inviters_role in role_names:
                                     await usr.add_roles(role_names[inviters_role])
@@ -130,7 +132,7 @@ class InviteTracker(commands.Cog):
                 await self.get_invites()
                 break
             except Exception as ex:
-                print("Error on new joinee",ex,ex.with_traceback())
+                print("Error on new joinee",ex)
 
 def setup(bot):
     i = InviteTracker(bot)
