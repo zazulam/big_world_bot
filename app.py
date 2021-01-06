@@ -24,7 +24,9 @@ def main():
         c.tenor_api_key,
         c.randoms_code,
         c.role_colors)
+    
     b.remove_command("help")
+    
     async def can_code(ctx):
         member = ctx.author
         roles = member.roles
