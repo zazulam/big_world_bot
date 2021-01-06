@@ -84,7 +84,11 @@ class InviteTracker(commands.Cog):
         randoms_code = self.bot.randoms_code
         await self.bot.wait_until_ready()
         gld = self.bot.get_guild(member.guild.id)
-        channel = gld.text_channels[0]
+        channels = [chl for chl in gld.text_channels if chl.name.lower() == "welcome"]
+        if channels:
+            channel = channels[0]
+        else:
+            channel =gld.text_channels[0]
         while True:
             try:
                 invs = await gld.invites()
