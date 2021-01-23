@@ -2,12 +2,25 @@ from big_world.bot import Bot
 from big_world.setup.config import Config
 # from big_world.setup.connector import Connector
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 import os
+from itertools import cycle
 
 
 def main():
-    
+    statuses = cycle(["Evo claim Sheriff again",
+                    "Steeb's fresh crewmate win",
+                    "Tony's big brain",
+                    "the screams from electrical",
+                    "Noonz trying to recall his tasks",
+                    "the medbay scan, visual tasks on bruh"
+                    "Shortgod poor defense",
+                    "reactor ring while everyone does their tasks",
+                    "Zaz's lasts word before he's voted off",
+                    "Raven rebuttal",
+                    "Eller lie through his teeth",
+                    "the vents",
+                    ])
     #Initialize config & bot & intents
     intents = discord.Intents.default()
     intents.members = True
@@ -32,6 +45,10 @@ def main():
         roles = member.roles
         return 'can_code' in [role.name for role in roles]
 
+    @tasks.loop(minutes=66)
+    async def change_status():
+        await b.change_presence(activity=discord.Activity(name=next(statuses),type=2))
+
     @b.command()
     async def help(ctx):
         embed = discord.Embed(title="Tasks assigned for Bot Imposter:",description="Try out the following commands:")
@@ -49,7 +66,7 @@ def main():
 
     @b.event
     async def on_ready():
-        await b.change_presence(activity=discord.Activity(name="Bits and Bytes",type=2))
+        await b.change_presence(activity=discord.Activity(name="the imposter clearly lie about their path",type=2))
 
     @b.command()
     @commands.check(can_code)
