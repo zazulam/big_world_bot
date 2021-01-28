@@ -24,7 +24,7 @@ class Quiz(commands.Cog):
             channel = [c for c in channels if c.name == f"{after.name.lower()}-test"]
             if channel:
                 channel = channel[0]
-                embed = discord.Embed(title="Are you ready for your test?",description="Let's see how big brain you are.\nLike this message to start.")
+                embed = discord.Embed(title=f"Hey {after.mention}, are you ready for your test?",description="Let's see how big brain you are.\nLike this message to start.")
                 last_msg = await channel.send(embed=embed)
                 await last_msg.add_reaction('👍')
 
