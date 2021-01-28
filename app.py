@@ -45,9 +45,6 @@ def main():
         roles = member.roles
         return 'can_code' in [role.name for role in roles]
 
-    @tasks.loop(minutes=66)
-    async def change_status():
-        await b.change_presence(activity=discord.Activity(name=next(statuses),type=2))
 
     @b.command()
     async def help(ctx):
@@ -66,7 +63,7 @@ def main():
 
     @b.event
     async def on_ready():
-        await b.change_presence(activity=discord.Activity(name="the imposter clearly lie about their path",type=2))
+        await b.change_presence(activity=discord.Activity(name="the vents and liars",type=2))
 
     @b.command()
     @commands.check(can_code)
