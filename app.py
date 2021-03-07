@@ -8,7 +8,8 @@ from itertools import cycle
 
 
 def main():
-    statuses = cycle(["Evo claim Sheriff again",
+    statuses = cycle(["the vents",
+                    "Evo claim Sheriff again",
                     "Steeb's fresh crewmate win",
                     "Tony's big brain",
                     "the screams from electrical",
@@ -19,7 +20,8 @@ def main():
                     "Zaz's lasts word before he's voted off",
                     "Raven rebuttal",
                     "Eller lie through his teeth",
-                    "the vents",
+                    "Nakeds",
+                    "Dash kill everyone"
                     ])
     #Initialize config & bot & intents
     intents = discord.Intents.default()
@@ -37,7 +39,11 @@ def main():
         roles = member.roles
         return 'can_code' in [role.name for role in roles]
 
-
+    @tasks.loop(minutes=10)
+    async def change_status():
+        print('changing status')
+        await b.change_presence(activity=discord.Activity(name=next(statuses),type=2))
+    
     @b.command()
     async def help(ctx):
         embed = discord.Embed(title="Tasks assigned for Bot Imposter:",description="Try out the following commands:")
@@ -56,7 +62,7 @@ def main():
     @b.event
     async def on_ready():
         await b.change_presence(activity=discord.Activity(name="the vents and liars",type=2))
-
+        change_status.start()
     @b.command()
     @commands.check(can_code)
     async def load(ctx, extension=""):

@@ -1,4 +1,5 @@
 import os
+import re
 import time
 import spotipy
 import spotipy.util as util
@@ -29,8 +30,12 @@ class Spotify(commands.Cog):
         self.sp = spotipy.Spotify(auth=token)
     
     @commands.command()
-    async def playlist_stats(self, ctx, playlist_name='Big World'):
-        playlist_id = await self.sp_search(playlist_name)
+    async def playlist_stats(self, ctx, *args):
+        if args:
+            playlist_name = ' '.join(args)
+        else:
+            playlist_name = 'Big World'
+        playlist_id = await self.sp_search(None,'playlist',playlist_name)
         tracks = await self.get_playlist_tracks(playlist_id)
         feats = await self.get_audio_features(tracks)
         df = await self.build_dataframe(feats)
@@ -41,13 +46,60 @@ class Spotify(commands.Cog):
         os.remove(img_path)
         plt.clf()
 
-    async def sp_search(self,name,search_type='playlist'):
+    @commands.command()
+    async def sp_search(self, ctx: commands.Context, search_type, *args):
+        print(search_type)
+        print(args)
         types = search_type+'s'
-        results = self.sp.search(name,type=search_type)
-        for item in results[types]['items']:
-            if name == item['name']:
-                return item['id']
-        return None
+        
+        # Internal use from other commands
+        if not ctx:
+            results = self.sp.search(args[0],type=search_type)
+            terms = args[0].lower()
+            for item in results[types]['items']:
+                if terms == re.sub('[^A-Za-z0-9 ]+','',item['name'].lower()):
+                    print('found playlist',terms)
+                    return item['id']
+            return None
+        # Actual command code
+        else:
+            search_terms = ' '.join(args).lower()
+            results = self.sp.search(search_terms,type=search_type)
+            for item in results[types]['items']:
+
+                if search_terms == re.sub('[^A-Za-z0-9 ]+','',item['name'].lower()):
+                    result = item['id']
+                    break
+            if result:
+                # Check for type as Artist/Track/Playlist return info based on that
+                if search_type.lower() == 'playlist':
+                    #follow the same as playlist_stats
+                    tracks = await self.get_playlist_tracks(result)
+                elif search_type.lower() == 'track':
+
+                    tracks = [item]
+                elif search_type.lower() == 'artist':
+                    # call self without ctx to get "This Is" playlist of artist
+                    playlist_name = 'This Is {}'.format(item['name'])
+                    search_terms = playlist_name
+                    playlist_id = await self.sp_search(None,'playlist',search_terms)
+                    print(playlist_id)
+                    tracks = await self.get_playlist_tracks(playlist_id)
+                else:
+                    await ctx.channel.send("idk if Spotify has {}".format(types))
+                    return
+                
+                feats = await self.get_audio_features(tracks)
+                df = await self.build_dataframe(feats)
+                await self.display_playlist_means(df,search_terms)
+                img_path = os.path.join(self.bot.image,'spotify_{}.png'.format(search_terms.replace(' ','_')))
+                plt.savefig(img_path)
+
+                await ctx.channel.send(item['external_urls']['spotify'],file=discord.File(img_path))
+                os.remove(img_path)
+                plt.clf()
+            else:
+                await ctx.channel.send("Can't find whatever you're looking for")
 
     async def get_playlist_tracks(self,playlist_id):
         tracks = self.sp.playlist_tracks(playlist_id)['items']
@@ -75,8 +127,19 @@ class Spotify(commands.Cog):
     async def get_audio_features(self,tracks):
         track_ids = [track['id'] for track in tracks]
         tracks_features = self.sp.audio_features(track_ids)
+        for i in range(len(tracks)):
+            if 'added_by' not in tracks[i]:
+                temp = {
+                    'id':tracks[i]['id'],
+                    'title':tracks[i]['name'],
+                    'added_by':tracks[i]['artists'][0]['name'],
+                    'artist':tracks[i]['artists'][0]['name'],
+                    'uri':tracks[i]['uri'],
+                }
+                tracks[i] = temp
         results = list(map(lambda dict1, dict2: {**dict1, **dict2}, tracks, tracks_features))
-
+        
+        print(results)
         return results
 
     async def build_dataframe(self,features):
