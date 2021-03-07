@@ -3,3 +3,4 @@ disc/
 config.json
 logs/
 big_world/setup/*yml
+.*

@@ -25,18 +25,10 @@ def main():
     intents = discord.Intents.default()
     intents.members = True
     c = Config()
+    c.intents = intents
+    c.description = "A bot that you may find useful"
     # connection = Connector(c.AWS_RESOURCE,c.AWS_REGION)
-    description = "A bot that you may find useful"
-    b = Bot(
-        c.command_prefix,
-        intents,
-        description,
-        # connection,
-        c.audio_resources,
-        c.image_resources,
-        c.tenor_api_key,
-        c.randoms_code,
-        c.role_colors)
+    b = Bot(c)
     
     b.remove_command("help")
     
@@ -126,6 +118,7 @@ def main():
     b.load_extension("big_world.cogs.relation")
     b.load_extension("big_world.cogs.role_assigner")
     b.load_extension("big_world.cogs.voice")
+    b.load_extension("big_world.cogs.spotify")
     b.run(c.bot_token)
 
 if __name__ == '__main__':

@@ -33,7 +33,7 @@ class Poll(commands.Cog):
         await ctx.message.add_reaction('👎')
         await ctx.message.add_reaction('🤷')
 
-    @commands.command(description="Request a Among with a number of people i.e. Among Us 9")
+    @commands.command(description="Request a game/event with a number of people i.e. Among Us 9")
     async def headcount(self, ctx, *args):
         game = ' '.join(args)
         poll_request = game.split()
