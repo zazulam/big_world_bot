@@ -19,18 +19,30 @@ class Spotify(commands.Cog):
         self.bot = bot
         self.cache = os.path.join(bot.sp_cache,f'.cache-{bot.sp_username}')
         self.colors = cycle(bot.plt_colors)
-        token = util.prompt_for_user_token(
+        self.token = util.prompt_for_user_token(
                                 username=bot.sp_username,
                                 scope=bot.sp_scope,
                                 client_id=bot.sp_client_id,
                                 client_secret=bot.sp_client_secret,
                                 redirect_uri=bot.sp_redirect_uri,
                                 cache_path=self.cache)
+        self.cred_manager = SpotifyOAuth(
+                                scope=bot.sp_scope,
+                                client_id=bot.sp_client_id,
+                                client_secret=bot.sp_client_secret,
+                                redirect_uri=bot.sp_redirect_uri,
+                                cache_path=self.cache)
+        self.sp = spotipy.Spotify(auth=self.token)
+        
+    async def verify_token(self):
+        token_info = self.cred_manager.get_cached_token()
+        if self.cred_manager.is_token_expired(token_info):
+            self.token = self.cred_manager.refresh_access_token(token_info['refresh_token'])
+            self.sp = spotipy.Spotify(auth=self.token)
 
-        self.sp = spotipy.Spotify(auth=token)
-    
     @commands.command()
     async def playlist_stats(self, ctx, *args):
+        await self.verify_token()
         if args:
             playlist_name = ' '.join(args)
         else:
@@ -39,7 +51,7 @@ class Spotify(commands.Cog):
         tracks = await self.get_playlist_tracks(playlist_id)
         feats = await self.get_audio_features(tracks)
         df = await self.build_dataframe(feats)
-        await self.display_playlist_means(df,playlist_name)
+        await self.display_playlist_means(df,playlist_name,show_users=True)
         img_path = os.path.join(self.bot.image,'spotify_{}.png'.format(playlist_name.replace(' ','_')))
         plt.savefig(img_path)
         await ctx.channel.send(file=discord.File(img_path))
@@ -48,8 +60,7 @@ class Spotify(commands.Cog):
 
     @commands.command()
     async def sp_search(self, ctx: commands.Context, search_type, *args):
-        print(search_type)
-        print(args)
+        await self.verify_token()
         types = search_type+'s'
         
         # Internal use from other commands
@@ -91,7 +102,7 @@ class Spotify(commands.Cog):
                 
                 feats = await self.get_audio_features(tracks)
                 df = await self.build_dataframe(feats)
-                await self.display_playlist_means(df,search_terms)
+                await self.display_playlist_means(df,search_terms,show_users=False)
                 img_path = os.path.join(self.bot.image,'spotify_{}.png'.format(search_terms.replace(' ','_')))
                 plt.savefig(img_path)
 
@@ -138,8 +149,6 @@ class Spotify(commands.Cog):
                 }
                 tracks[i] = temp
         results = list(map(lambda dict1, dict2: {**dict1, **dict2}, tracks, tracks_features))
-        
-        print(results)
         return results
 
     async def build_dataframe(self,features):
@@ -156,22 +165,32 @@ class Spotify(commands.Cog):
         means = df.mean(axis=0)
         return means
 
-    async def display_playlist_means(self,playlist_df,playlist_name):
+    async def display_playlist_means(self,playlist_df,playlist_name,show_users):
         fig=plt.figure(figsize = (8,8))
         ax = fig.add_subplot(polar=True)
         num_features = 7
         angles = np.linspace(0,2*np.pi,num_features,endpoint=False)
         angles = np.concatenate((angles,[angles[0]])) 
             
-        #iterate through the added_by column and generate feat_means from that
-        for name in playlist_df.added_by.unique():
-            temp_df = playlist_df[playlist_df.added_by == name]
-            user_means = await self.calc_means(temp_df)
+       
+        if show_users:
+             #iterate through the added_by column and generate feat_means from that
+            for name in playlist_df.added_by.unique():
+                temp_df = playlist_df[playlist_df.added_by == name]
+                user_means = await self.calc_means(temp_df)
+                stats = user_means.tolist()
+                stats = np.concatenate((stats,[stats[0]]))
+                color = next(self.colors)
+
+                ax.plot(angles, stats, 'o-', linewidth=2, label=name, color=color)
+                ax.fill(angles, stats, alpha=0.25, facecolor=color)
+        else:
+            user_means = await self.calc_means(playlist_df)
             stats = user_means.tolist()
-            stats = np.concatenate((stats,[stats[0]]))
+            stats = stats = np.concatenate((stats,[stats[0]]))
             color = next(self.colors)
 
-            ax.plot(angles, stats, 'o-', linewidth=2, label =name, color=color)
+            ax.plot(angles, stats, 'o-', linewidth=2, label=playlist_name, color=color)
             ax.fill(angles, stats, alpha=0.25, facecolor=color)
 
         labels = list(user_means.index)[:]

@@ -41,7 +41,6 @@ def main():
 
     @tasks.loop(minutes=10)
     async def change_status():
-        print('changing status')
         await b.change_presence(activity=discord.Activity(name=next(statuses),type=2))
     
     @b.command()
