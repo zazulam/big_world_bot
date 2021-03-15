@@ -32,7 +32,7 @@ class Spotify(commands.Cog):
                                 client_secret=bot.sp_client_secret,
                                 redirect_uri=bot.sp_redirect_uri,
                                 cache_path=self.cache)
-        self.sp = spotipy.Spotify(auth=self.token)
+        self.sp = spotipy.Spotify(auth=self.token,oauth_manager=self.cred_manager)
         
     async def verify_token(self):
         token_info = self.cred_manager.get_cached_token()
@@ -75,10 +75,11 @@ class Spotify(commands.Cog):
         # Actual command code
         else:
             search_terms = ' '.join(args).lower()
+            search_terms = re.sub('[^A-Za-z0-9 ]+','',search_terms)
             results = self.sp.search(search_terms,type=search_type)
             for item in results[types]['items']:
-
                 if search_terms == re.sub('[^A-Za-z0-9 ]+','',item['name'].lower()):
+                    print('Match found: {} || {}'.format(search_terms,item['name']))
                     result = item['id']
                     break
             if result:
