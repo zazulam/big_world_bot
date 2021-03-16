@@ -1,6 +1,6 @@
 from big_world.bot import Bot
 from big_world.setup.config import Config
-# from big_world.setup.connector import Connector
+from big_world.setup.connector import DBWrapper
 import discord
 from discord.ext import commands, tasks
 import os
@@ -29,8 +29,8 @@ def main():
     c = Config()
     c.intents = intents
     c.description = "A bot that you may find useful"
-    # connection = Connector(c.AWS_RESOURCE,c.AWS_REGION)
-    b = Bot(c)
+    connection = DBWrapper(c.AWS_RESOURCE,c.AWS_REGION)
+    b = Bot(c,connection)
     
     b.remove_command("help")
     

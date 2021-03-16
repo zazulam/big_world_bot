@@ -1,7 +1,7 @@
 from discord.ext import commands
 
 class Bot(commands.Bot):
-    def __init__(self, config):
+    def __init__(self, config,connection):
         super().__init__(config.command_prefix,intents=config.intents,description=config.description)
         # self.db = connection
         self.audio = config.audio_resources
@@ -16,6 +16,8 @@ class Bot(commands.Bot):
         self.sp_scope = config.spotify['scope']
         self.sp_cache = self.image
         self.sp_username = config.spotify['user']
+        self.db = connection
+
     async def update_wildling_invite(self, new_code):
         self.randoms_code = new_code
         
