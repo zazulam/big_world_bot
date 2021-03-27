@@ -38,6 +38,7 @@ def main():
         if response.status_code != 200:
             print(response.status_code)
             print(response.text)
+            asyncio.sleep(10)        
         else:
             wait = False
             products = json.loads(response.text)['products']
