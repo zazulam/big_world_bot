@@ -32,7 +32,7 @@ class Spotify(commands.Cog):
                                 client_secret=bot.sp_client_secret,
                                 redirect_uri=bot.sp_redirect_uri,
                                 cache_path=self.cache)
-        self.sp = spotipy.Spotify(auth=self.token,oauth_manager=self.cred_manager)
+        self.sp = spotipy.Spotify(auth=self.token,auth_manager=self.cred_manager)
         
     async def verify_token(self):
         token_info = self.cred_manager.get_cached_token()
