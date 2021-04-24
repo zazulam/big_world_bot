@@ -22,16 +22,17 @@ def main():
     b.remove_command("help")
     
     sns = boto3.client('sns',region_name='us-east-1')
-
-    @tasks.loop(seconds=10)
+    products_names = {'3070':'gpu','3080':'gpu','3090':'gpu','PlayStation 5 Digital Edition':'ps5','PlayStation 5 Console':'ps5'}
+    @tasks.loop(seconds=13)
     async def check_products_status():
         #bby skus
+        guild = get(b.guilds,id=800158238422728764)
         skus = {3070:6429442,
                 3080:6429440,
                 3090:6429434,
                 'ps5d':6430161,
                 'ps5':6426149}
-        products_names = {'3070':'gpu','3080':'gpu','3090':'gpu','PlayStation 5 Digital Edition':'ps5','PlayStation 5 Console':'ps5'}
+        
         
         baseURL = f"https://api.bestbuy.com/v1/products(sku in({skus[3070]},{skus[3080]},{skus[3090]},{skus['ps5d']},{skus['ps5']}))?apiKey={c.bby_key}&sort=name.asc&show=addToCartUrl,name,salePrice,onlineAvailabilityText,onlineAvailability&format=json"
         response = requests.get(baseURL)
@@ -40,20 +41,21 @@ def main():
             print(response.text)
             asyncio.sleep(10)        
         else:
-            wait = False
             products = json.loads(response.text)['products']
+            await guild.channels[2].send(f"BBY API Products Response:\n{products}")
             for p in products:
                 if p['onlineAvailability']:
                     print(f"found a {p['name']}")
-                    for key in products_names:
+                    await guild.channels[1].send(f"found a {p['name']}")
+                    for key in list(products_names):
                         if key in p['name']:
                             name = key
                             arn = getattr(c,products_names[key]+'_topic_arn')
                             sns.publish(TopicArn=arn,Message=name+'\n'+p['addToCartUrl'])
-                            guild = get(b.guilds,id=800158238422728764)
+                            
                             embed = discord.Embed(title=f"{name}",description="Click the link below to auto add to cart")
                             embed.add_field(name='Add to Cart Link',value=p['addToCartUrl'])
-                            del products[key]
+                            del products_names[key]
                             await guild.channels[1].send(embed=embed)
     
     @b.command()

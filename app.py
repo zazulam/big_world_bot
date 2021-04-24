@@ -14,7 +14,7 @@ def main():
                     "Tony's big brain",
                     "the screams from electrical",
                     "Noonz trying to recall his tasks",
-                    "the medbay scan, visual tasks on bruh"
+                    "the medbay scan, visual tasks on bruh",
                     "Shortgod poor defense",
                     "reactor ring while everyone does their tasks",
                     "Zaz's lasts word before he's voted off",
