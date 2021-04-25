@@ -38,7 +38,7 @@ class Spotify(commands.Cog):
         token_info = self.cred_manager.get_cached_token()
         if self.cred_manager.is_token_expired(token_info):
             self.token = self.cred_manager.refresh_access_token(token_info['refresh_token'])
-            self.sp = spotipy.Spotify(auth=self.token)
+            self.sp = spotipy.Spotify(auth=self.token,auth_manager=self.cred_manager)
 
     @commands.command()
     async def playlist_stats(self, ctx, *args):
