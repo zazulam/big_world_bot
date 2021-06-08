@@ -8,26 +8,12 @@ from itertools import cycle
 
 
 def main():
-    statuses = cycle(["the vents",
-                    "Evo claim Sheriff again",
-                    "Steeb's fresh crewmate win",
-                    "Tony's big brain",
-                    "the screams from electrical",
-                    "Noonz trying to recall his tasks",
-                    "the medbay scan, visual tasks on bruh"
-                    "Shortgod poor defense",
-                    "reactor ring while everyone does their tasks",
-                    "Zaz's lasts word before he's voted off",
-                    "Raven rebuttal",
-                    "Eller lie through his teeth",
-                    "Nakeds",
-                    "Dash kill everyone"
-                    ])
     #Initialize config & bot & intents
     intents = discord.Intents.default()
     intents.members = True
     c = Config()
     c.intents = intents
+    statuses = cycle(c.statuses)
     c.description = "A bot that you may find useful"
     connection = DBWrapper(c.AWS_RESOURCE,c.AWS_REGION)
     b = Bot(c,connection)
