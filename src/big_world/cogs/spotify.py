@@ -19,20 +19,20 @@ class Spotify(commands.Cog):
         self.bot = bot
         self.cache = os.path.join(bot.sp_cache,f'.cache-{bot.sp_username}')
         self.colors = cycle(bot.plt_colors)
-        self.token = util.prompt_for_user_token(
-                                username=bot.sp_username,
-                                scope=bot.sp_scope,
-                                client_id=bot.sp_client_id,
-                                client_secret=bot.sp_client_secret,
-                                redirect_uri=bot.sp_redirect_uri,
-                                cache_path=self.cache)
+        # self.token = util.prompt_for_user_token(
+        #                         username=bot.sp_username,
+        #                         scope=bot.sp_scope,
+        #                         client_id=bot.sp_client_id,
+        #                         client_secret=bot.sp_client_secret,
+        #                         redirect_uri=bot.sp_redirect_uri,
+        #                         cache_path=self.cache)
         self.cred_manager = SpotifyOAuth(
                                 scope=bot.sp_scope,
                                 client_id=bot.sp_client_id,
                                 client_secret=bot.sp_client_secret,
                                 redirect_uri=bot.sp_redirect_uri,
                                 cache_path=self.cache)
-        self.sp = spotipy.Spotify(auth=self.token,auth_manager=self.cred_manager)
+        self.sp = spotipy.Spotify(oauth_manager=self.cred_manager,auth_manager=self.cred_manager)
         
     async def verify_token(self):
         token_info = self.cred_manager.get_cached_token()

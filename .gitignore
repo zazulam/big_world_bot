@@ -2,6 +2,7 @@
 disc/
 config.json
 logs/
-big_world/setup/*yml
+src/big_world/setup/*yml
 .*
 *.pyc
+__pycache__/
