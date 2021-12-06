@@ -17,8 +17,9 @@ jobs:
       - name: Deploy to my EC2 instance
         uses: easingthemes/ssh-deploy@v2.1.5
         env:
-          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
           SOURCE: "./"
-          REMOTE_HOST: "ec2-52-90-28-165.us-east-1.compute.amazonaws.com"
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
           REMOTE_USER: "ec2-user"
           TARGET: "/home/ec2-user/discord"
+      
