@@ -21,6 +21,6 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
           SOURCE: "./"
           REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
-          REMOTE_USER: "ec2-user"
-          TARGET: "/home/ec2-user/discord"
+          REMOTE_USER: "ubuntu"
+          TARGET: "/home/ubuntu/discord"
       
