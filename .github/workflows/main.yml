@@ -7,6 +7,7 @@ on:
 
 jobs:
   deploy:
+    environment: git-build
     name: Push to EC2 Instance
     runs-on: ubuntu-latest
 
@@ -16,7 +17,7 @@ jobs:
 
       - name: Deploy to my EC2 instance
         uses: easingthemes/ssh-deploy@v2.1.5
-        env:
+        env: 
           SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
           SOURCE: "./"
           REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
