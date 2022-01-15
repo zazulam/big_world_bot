@@ -6,7 +6,7 @@ from discord.ext import commands, tasks
 import os
 from itertools import cycle
 
-
+# Random comment to test workflow
 def main():
     #Initialize config & bot & intents
     intents = discord.Intents.default()
