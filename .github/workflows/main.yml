@@ -48,5 +48,5 @@ jobs:
         run: ssh discord 'screen -dm;screen -X cd discord/src/'
       
       - name: Restart Application
-        run: ssh discord -f 'screen -X python3 app.py'
+        run: ssh discord -f 'screen -X python3 app.py; sleep 20'
             
