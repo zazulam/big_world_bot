@@ -30,7 +30,7 @@ jobs:
       - name: Add Keys
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
-        run: ssh-add <<< $SSH_PRIVATE_KEY
+        run: ssh-add <<< "${SSH_PRIVATE_KEY}"
         
       - name: Connect to EC2
         env:
