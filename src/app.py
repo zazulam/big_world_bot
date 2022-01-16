@@ -6,7 +6,6 @@ from discord.ext import commands, tasks
 import os
 from itertools import cycle
 
-# Random comment to test workflow
 def main():
     #Initialize config & bot & intents
     intents = discord.Intents.default()
@@ -29,25 +28,11 @@ def main():
     async def change_status():
         await b.change_presence(activity=discord.Activity(name=next(statuses),type=2))
     
-    @b.command()
-    async def help(ctx):
-        embed = discord.Embed(title="Tasks assigned for Bot Imposter:",description="Try out the following commands:")
-        embed.add_field(name="!available_roles",value="Lists the available roles you can assign to yourself...its just your color")
-        embed.add_field(name="!role_color [color]",value="The color you want to assign to youself 🎨")
-        embed.add_field(name="!bigworld [name]", value="Default name is Noonz, shows all the relationships that stem from the name passed")
-        embed.add_field(name="!ancestors [name]", value='Defaults to the person who made the command, shows the lineage tracing from this member all the way up to the First Borne')
-        embed.add_field(name="!family [name]",value="Defaults to the person who made the command, shows the parent and children of the member passed")
-        embed.add_field(name="!poll [question]",value="Added the appropriate reactions for a poll question a user has.")
-        embed.add_field(name="!speak [audio]",value="Bot will join the voice channel that the user is currently in and speak the given audio file, current supported values for audio are: ambulance, believe, bloody, cut, fucked, jerry, out")
-        embed.add_field(name="!headcount [game] [count]",value="A poll that will ping the author and all those who react with a :thumbsup: when the count is reach (excluding the bot and author)")
-        embed.add_field(name="!gifme [wOrDz]",value="Have the bot pull a gif of whatever you want, just not in #all")
-        embed.add_field(name="!invite",value="General invite code for the wild.")
-        await ctx.channel.send(embed=embed)
-
     @b.event
     async def on_ready():
-        await b.change_presence(activity=discord.Activity(name="the vents and liars",type=2))
-        change_status.start()
+        await b.change_presence(activity=discord.Activity(name="the inner machinations of my mind",type=2))
+        # commenting out for now, until we can obtain user inputs for statuses
+        # change_status.start() 
     @b.command()
     @commands.check(can_code)
     async def load(ctx, extension=""):

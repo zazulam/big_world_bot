@@ -28,10 +28,17 @@ class Poll(commands.Cog):
 
 
     @commands.command(description="Ask any question you would like")
-    async def poll(self, ctx):
+    async def question(self, ctx):
         await ctx.message.add_reaction('👍')
         await ctx.message.add_reaction('👎')
         await ctx.message.add_reaction('🤷')
+    
+    @commands.command(description="Ask any poll you would like, make sure to add options up to 4")
+    async def poll(self, ctx):
+        await ctx.message.add_reaction('1️⃣')
+        await ctx.message.add_reaction('2️⃣')
+        await ctx.message.add_reaction('3️⃣')
+        await ctx.message.add_reaction('4️⃣')
 
     @commands.command(description="Request a game/event with a number of people i.e. Among Us 9")
     async def headcount(self, ctx, *args):
