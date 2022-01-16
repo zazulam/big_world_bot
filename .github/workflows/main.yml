@@ -31,13 +31,13 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
         run: |
           mkdir -p ~/.ssh/
-          echo "$SSH_KEY" > ~/.ssh/disc.key
-          chmod 600 ~/.ssh/disc.key
+          echo "$SSH_KEY" > ~/.ssh/disc.pem
+          chmod 600 ~/.ssh/disc.pem
           cat >>~/.ssh/config <<END
           Host discord
             HostName $REMOTE_HOST
             User $REMOTE_USER
-            IdentityFile ~/.ssh/disc.key
+            IdentityFile ~/.ssh/disc.pem
             StrictHostKeyChecking no
           END
 
