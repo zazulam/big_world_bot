@@ -44,7 +44,9 @@ jobs:
       - name: Terminate Old Instance
         run: ssh discord 'screen -X quit'
         
-      - name: Restart Application
-        run: ssh discord -f 'screen -dm;screen -X cd discord/src/; screen -X python3 app.py';exit
+      - name: Spin Up New Instance
+        run: ssh discord 'screen -dm;screen -X cd discord/src/'
       
+      - name: Restart Application
+        run: ssh discord -f 'screen -X python3 app.py'
             
