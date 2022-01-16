@@ -1,13 +1,12 @@
 import discord
 from discord.ext import commands
-from discord.utils import get
 
-class Helper(commands.HelpCommand):
+class Helper(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
     
     @commands.command(pass_context=True)
-    async def help(self, ctx):
+    async def helpme(self, ctx):
         embed = discord.Embed(title="Tasks assigned for Bot Imposter:",description="Try out the following commands:")
         embed.add_field(name="!roles",value="Lists the available roles you can assign to yourself...its just your color")
         embed.add_field(name="![color]",value="The color you want to assign to youself 🎨")

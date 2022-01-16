@@ -102,14 +102,15 @@ def main():
         await unload(ctx, extension)
         await load(ctx, extension)
 
+    def load_all_cogs():
+        for filename in os.listdir(os.path.join(os.getcwd(),"big_world","cogs")):
+            if filename[-3:] == ".py":
+                b.load_extension(f"big_world.cogs.{filename[:-3]}")
+        for filename in os.listdir(os.path.join(os.getcwd(),"big_world","cogs","addons")):
+            if filename[-3:] == ".py":
+                b.load_extension(f"big_world.cogs.addons.{filename[:-3]}")
 
-    b.load_extension("big_world.cogs.invite_tracker")
-    b.load_extension("big_world.cogs.poll")
-    b.load_extension("big_world.cogs.quizlet")
-    b.load_extension("big_world.cogs.relation")
-    b.load_extension("big_world.cogs.role_assigner")
-    b.load_extension("big_world.cogs.voice")
-    b.load_extension("big_world.cogs.spotify")
+    load_all_cogs()
     b.run(c.bot_token)
 
 if __name__ == '__main__':

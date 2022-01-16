@@ -11,3 +11,7 @@ class Sandbox(commands.Cog):
 
     async def sanitize(self, ctx):
         pass
+
+def setup(bot):
+    pass
+    # bot.add_cog(Sandbox(bot))

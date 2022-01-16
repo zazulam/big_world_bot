@@ -21,4 +21,6 @@ class Metrics(commands.Cog):
     async def update_stats(self):
         pass
 
-    
+def setup(bot):
+    pass
+    #bot.add_cog(Metrics(bot))

@@ -115,9 +115,11 @@ class Spotify(commands.Cog):
 
     async def get_playlist_tracks(self,playlist_id):
         tracks = self.sp.playlist_tracks(playlist_id)['items']
-
+        tracks_data = []
         if len(tracks) > 0:
             for i in range(len(tracks)):
+                if tracks[i]['track'] is None:
+                    continue
                 temp = {
                     'id':tracks[i]['track']['id'],
                     'title':tracks[i]['track']['name'],
@@ -131,8 +133,8 @@ class Spotify(commands.Cog):
                     user_info = self.sp.user(temp['added_by'])
                     temp['added_by'] = user_info['display_name']
                 
-                tracks[i] = temp
-            return tracks
+                tracks_data.append(temp)
+            return tracks_data
         
         return None
 
