@@ -31,7 +31,7 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
         run: |
           mkdir -p ~/.ssh/
-          echo "$SSH_KEY" > ~/.ssh/disc.pem
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/disc.pem
           chmod 600 ~/.ssh/disc.pem
           cat >>~/.ssh/config <<END
           Host discord
