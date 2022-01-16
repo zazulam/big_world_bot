@@ -24,30 +24,35 @@ jobs:
           REMOTE_USER: "ubuntu"
           TARGET: "/home/ubuntu/discord"
       
-      - name: Setup Agent
-        run: exec ssh-agent
-        
-      - name: Add Keys
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
-        run: ssh-add <<< "$SSH_PRIVATE_KEY"
-        
-      - name: Connect to EC2
+      - name: Setup SSH
         env:
           REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
           REMOTE_USER: "ubuntu"
-        run: ssh -i $REMOTE_USER@$REMOTE_HOST
-        
+          SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh/
+          echo "$SSH_KEY" > ~/.ssh/disc.key
+          chmod 600 ~/.ssh/disc.key
+          cat >>~/.ssh/config <<END
+          Host discord
+            HostName $REMOTE_HOST
+            User $REMOTE_USER
+            IdentityFile ~/.ssh/disc.key
+            StrictHostKeyChecking no
+          END
+
       - name: Terminate Old Screen
-        run: screen -X quit
+        run: ssh discord 'screen -X quit'
         
       - name: Spin up New Screen
-        run: |
-          screen
-           
+        run: ssh discord 'screen'
+      
+      - name: Start Screen
+        run: ssh discord ' '
+      
       - name: Change Directory
-        run: cd discord/src/
+        run: ssh discord 'cd discord/src/'
         
       - name: Restart Application          
-        run: python3 app.py
+        run: ssh discord 'python3 app.py'
             
