@@ -41,18 +41,10 @@ jobs:
             StrictHostKeyChecking no
           END
 
-      - name: Terminate Old Screen
+      - name: Terminate Old Instance
         run: ssh discord 'screen -X quit'
         
-      - name: Spin up New Screen
-        run: ssh discord 'screen'
+      - name: Restart Application
+        run: ssh discord 'screen -d -m -X cd discord/src/;python3 app.py'
       
-      - name: Start Screen
-        run: ssh discord ' '
-      
-      - name: Change Directory
-        run: ssh discord 'cd discord/src/'
-        
-      - name: Restart Application          
-        run: ssh discord 'python3 app.py'
             
