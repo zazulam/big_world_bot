@@ -32,11 +32,11 @@ jobs:
           REMOTE_USER: "ubuntu"
           TARGET: "/home/ubuntu/discord"
           
-          run: |
-            ssh -i $SSH_PRIVATE_KEY $REMOTE_USER@$REMOTE_HOST
-            screen -X quit
-            screen
-             
-            cd discord/src/
-            python3 app.py
+        run: |
+          ssh -i $SSH_PRIVATE_KEY $REMOTE_USER@$REMOTE_HOST
+          screen -X quit
+          screen
+           
+          cd discord/src/
+          python3 app.py
             
