@@ -33,7 +33,8 @@ jobs:
           TARGET: "/home/ubuntu/discord"
           
         run: |
-          ssh -i $SSH_PRIVATE_KEY $REMOTE_USER@$REMOTE_HOST
+          ssh-add <<< "${SSH_PRIVATE_KEY}
+          ssh -i $REMOTE_USER@$REMOTE_HOST
           screen -X quit
           screen
            
