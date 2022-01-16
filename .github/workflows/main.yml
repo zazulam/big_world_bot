@@ -45,5 +45,5 @@ jobs:
         run: ssh discord 'screen -X quit'
         
       - name: Restart Application
-        run: ssh -o ConnectTimeout=60 discord 'screen -dm;screen -X cd discord/src/;screen -X python3 app.py'
+        run: ssh discord 'screen -dm;screen -X cd discord/src/;screen -X python3 app.py'
             
