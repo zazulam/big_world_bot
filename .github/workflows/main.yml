@@ -45,6 +45,6 @@ jobs:
         run: ssh discord 'screen -X quit'
         
       - name: Restart Application
-        run: ssh discord 'screen -dm;screen -X pwd;cd discord/src/;python3 app.py';exit
+        run: ssh discord 'screen -dm;screen -X pwd;cd discord/src/;nohup python3 app.py &';exit
       
             
