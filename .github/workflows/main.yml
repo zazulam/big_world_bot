@@ -41,6 +41,12 @@ jobs:
             StrictHostKeyChecking no
           END
         
+      - name: Change Directory
+        run: ssh discord 'cd discord/src/'
+        
+      - name: Terminate Previous Instance
+        run: ssh discord ' screen -X quit'
+        
       - name: Restart Application
-        run: ssh discord -f 'cd discord/src/ && python3 app.py'
-            
+        run: ssh -o ConnectTimeout=60 discord 'screen -dm;screen -X python3 app.py'
+        
