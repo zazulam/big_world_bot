@@ -40,9 +40,6 @@ jobs:
             IdentityFile ~/.ssh/disc.pem
             StrictHostKeyChecking no
           END
-
-      - name: Terminate Old Instance
-        run: ssh discord 'screen -X quit'
         
       - name: Restart Application
         run: ssh discord -f 'cd discord/src/ && python3 app.py'
