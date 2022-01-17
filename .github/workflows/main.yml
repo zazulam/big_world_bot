@@ -1,4 +1,4 @@
-name: Push-to-EC2
+name: Deploy-to-EC2
 
 on:
   push:
@@ -24,3 +24,23 @@ jobs:
           REMOTE_USER: "ubuntu"
           TARGET: "/home/ubuntu/discord"
       
+      - name: Setup SSH
+        env:
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+          REMOTE_USER: "ubuntu"
+          SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh/
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/disc.pem
+          chmod 600 ~/.ssh/disc.pem
+          cat >>~/.ssh/config <<END
+          Host discord
+            HostName $REMOTE_HOST
+            User $REMOTE_USER
+            IdentityFile ~/.ssh/disc.pem
+            StrictHostKeyChecking no
+          END
+        
+      - name: Restart Application
+        run: ssh discord -f 'cd discord/src/ && python3 app.py'
+            
