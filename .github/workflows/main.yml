@@ -23,23 +23,3 @@ jobs:
           REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
           REMOTE_USER: "ubuntu"
           TARGET: "/home/ubuntu/discord"
-
-      - name: AWS SSM Send-Command
-        # You may pin to the exact commit or the version.
-        # uses: peterkimzz/aws-ssm-send-command@f700e8882082ecdba37a2bc3f362988f5905d155
-        uses: peterkimzz/aws-ssm-send-command@1.0.6
-        with:
-          # AWS access key id
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          # AWS secret access key
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          # Where EC2 instance is
-          aws-region: ${{ secrets.AWS_REGION }}
-          # AWS EC2 Instance id or ids
-          instance-ids: ${{ secrets.INSTANCE_ID }}
-          # Bash command you want to execute
-          command: screen -X quit;screen -dm;screen -X python3 app.py;
-          # Command execution location
-          working-directory: /home/ubuntu/discord/src # optional, default is /home/ubuntu
-          # Comment for Send-Command
-        
