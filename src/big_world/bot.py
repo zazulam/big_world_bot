@@ -3,7 +3,6 @@ from discord.ext import commands
 class Bot(commands.Bot):
     def __init__(self, config,connection):
         super().__init__(config.command_prefix,intents=config.intents,description=config.description)
-        # self.db = connection
         self.audio = config.audio_resources
         self.image = config.image_resources
         self.tenor = config.tenor_api_key
