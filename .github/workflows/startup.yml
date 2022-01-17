@@ -35,7 +35,7 @@ jobs:
           # Where EC2 instance is
           aws-region: ${{ secrets.AWS_REGION }}
           # AWS EC2 Instance id or ids
-          instance-ids: S{{ secrets.INSTANCE_ID }}
+          instance-ids: ${{ secrets.INSTANCE_ID }}
           # Bash command you want to execute
           command: screen -X quit;screen -dm;screen -X python3 app.py;
           # Command execution location
