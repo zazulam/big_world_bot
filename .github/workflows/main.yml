@@ -24,29 +24,4 @@ jobs:
           REMOTE_USER: "ubuntu"
           TARGET: "/home/ubuntu/discord"
       
-      - name: Setup SSH
-        env:
-          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
-          REMOTE_USER: "ubuntu"
-          SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
-        run: |
-          mkdir -p ~/.ssh/
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/disc.pem
-          chmod 600 ~/.ssh/disc.pem
-          cat >>~/.ssh/config <<END
-          Host discord
-            HostName $REMOTE_HOST
-            User $REMOTE_USER
-            IdentityFile ~/.ssh/disc.pem
-            StrictHostKeyChecking no
-          END
-        
-      - name: Change Directory
-        run: ssh discord 'cd discord/src/'
-        
-      - name: Terminate Previous Instance
-        run: ssh discord ' screen -X quit'
-        
-      - name: Restart Application
-        run: ssh discord 'screen -dm;screen -X python3 app.py'
         
